@@ -1273,10 +1273,7 @@ let LaravelPlatform = class LaravelPlatform {
                 },
                 {
                     name: "Laravel - Run migrations",
-                    actions: [
-                        `php ${context.remote.releaseDir}/artisan migrate --force --no-interaction`,
-                        `php ${context.remote.releaseDir}/artisan l5-swagger:generate || echo "l5-swagger not installed"`
-                    ]
+                    actions: [`php ${context.remote.releaseDir}/artisan migrate --force --no-interaction`]
                 },
                 {
                     name: "Laravel - Clear cache",
