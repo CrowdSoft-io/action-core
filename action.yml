@@ -1,0 +1,32 @@
+name: Core
+description: Core functionality
+
+inputs:
+  platform:
+    description: Platform name
+    required: true
+  user:
+    description: Username
+    required: true
+  max_releases:
+    description: Maximum number of old releases
+    required: false
+    default: '5'
+  infrastructure_dir:
+    description: Infrastructure directory
+    required: false
+    default: infrastructure
+
+outputs:
+  version:
+    description: Build version
+  build_dir:
+    description: Build directory
+  release_dir:
+    description: Release directory
+  install_script:
+    description: Install script
+
+runs:
+  using: node16
+  main: lib/index.js

@@ -1,0 +1,3 @@
+parameters:
+  test:
+    domain: example.com

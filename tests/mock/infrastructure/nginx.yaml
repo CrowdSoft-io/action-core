@@ -1,0 +1,23 @@
+nginx:
+  external:
+    locations:
+      - path: /
+        basic_auth: true
+        service:
+          type: html
+      - path: ~ ^/api/
+        service:
+          type: proxy
+          options:
+            pass: 'http://127.0.0.1:8083'
+      - path: ~ ^/docs/
+        auth: true
+        service:
+          type: proxy
+          options:
+            pass: 'http://127.0.0.1:8083'
+      - path: ~ ^/connection/websocket
+        service:
+          type: proxy
+          options:
+            pass: 'http://127.0.0.1:8000'
