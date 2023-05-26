@@ -29,25 +29,25 @@ export class LaravelPlatform implements PlatformInterface {
       },
       preRelease: [
         {
-          name: "Create directories",
+          name: "Laravel - Create directories",
           actions: paths.map((path) => `[[ ! -d '${path}' ]] && mkdir -p '${path}' || echo '${path} already created'`)
         },
         {
-          name: "Configure project",
+          name: "Laravel - Configure project",
           actions: [
             `ln -s '${storageAppPath}' '${context.remote.releaseDir}/storage/app'`,
             `cp '${context.remote.configsRoot}/.env' '${context.remote.releaseDir}/'`
           ]
         },
         {
-          name: "Run migrations",
+          name: "Laravel - Run migrations",
           actions: [
             `php ${context.remote.releaseDir}/artisan migrate`,
             `php ${context.remote.releaseDir}/artisan l5-swagger:generate || echo "l5-swagger not installed"`
           ]
         },
         {
-          name: "Clear cache",
+          name: "Laravel - Clear cache",
           actions: [
             `php ${context.remote.releaseDir}/artisan cache:clear`,
             `php ${context.remote.releaseDir}/artisan config:clear`,

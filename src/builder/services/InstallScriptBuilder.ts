@@ -12,7 +12,7 @@ export class InstallScriptBuilder {
 
   addStages(...stages: Array<ReleaseStage>): InstallScriptBuilder {
     stages.forEach(({ name, actions }) => {
-      const slug = name.replace(/\s+/g, "_").replace(/\W+/g, "").toLowerCase() || Date.now();
+      const slug = name.replace(/\s+/g, "_").replace(/\W+/g, "").replace(/_{2,}/g, "_").toLowerCase() || Date.now();
       const filename = `${slug}.sh`;
       this.stages.push({ name, filename, actions });
     });

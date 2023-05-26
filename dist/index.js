@@ -203,7 +203,7 @@ class InstallScriptBuilder {
     }
     addStages(...stages) {
         stages.forEach(({ name, actions }) => {
-            const slug = name.replace(/\s+/g, "_").replace(/\W+/g, "").toLowerCase() || Date.now();
+            const slug = name.replace(/\s+/g, "_").replace(/\W+/g, "").replace(/_{2,}/g, "_").toLowerCase() || Date.now();
             const filename = `${slug}.sh`;
             this.stages.push({ name, filename, actions });
         });
@@ -1261,25 +1261,25 @@ let LaravelPlatform = class LaravelPlatform {
             },
             preRelease: [
                 {
-                    name: "Create directories",
+                    name: "Laravel - Create directories",
                     actions: paths.map((path) => `[[ ! -d '${path}' ]] && mkdir -p '${path}' || echo '${path} already created'`)
                 },
                 {
-                    name: "Configure project",
+                    name: "Laravel - Configure project",
                     actions: [
                         `ln -s '${storageAppPath}' '${context.remote.releaseDir}/storage/app'`,
                         `cp '${context.remote.configsRoot}/.env' '${context.remote.releaseDir}/'`
                     ]
                 },
                 {
-                    name: "Run migrations",
+                    name: "Laravel - Run migrations",
                     actions: [
                         `php ${context.remote.releaseDir}/artisan migrate`,
                         `php ${context.remote.releaseDir}/artisan l5-swagger:generate || echo "l5-swagger not installed"`
                     ]
                 },
                 {
-                    name: "Clear cache",
+                    name: "Laravel - Clear cache",
                     actions: [
                         `php ${context.remote.releaseDir}/artisan cache:clear`,
                         `php ${context.remote.releaseDir}/artisan config:clear`,
@@ -1435,6 +1435,9 @@ let FileSystem = class FileSystem {
         fs_1.default.mkdirSync(path, 0o755);
     }
     writeFile(path, content) {
+        if (fs_1.default.existsSync(path)) {
+            throw new Error(`File "${path}" already exists`);
+        }
         fs_1.default.writeFileSync(path, content);
     }
 };

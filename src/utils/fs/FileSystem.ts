@@ -8,6 +8,9 @@ export class FileSystem {
   }
 
   writeFile(path: string, content: string): void {
+    if (fs.existsSync(path)) {
+      throw new Error(`File "${path}" already exists`);
+    }
     fs.writeFileSync(path, content);
   }
 }
