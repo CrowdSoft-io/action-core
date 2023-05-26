@@ -1,4 +1,4 @@
-# Build project action
+# Core action
 
 This action prepares a shell script for remote server execution.
 
@@ -37,6 +37,10 @@ The name of release directory.
 ### `install_script`
 
 The path to install script.
+
+### `run_composer`
+
+Need to run composer install.
 
 ## Example usage
 
