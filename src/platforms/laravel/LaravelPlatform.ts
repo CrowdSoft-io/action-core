@@ -42,7 +42,7 @@ export class LaravelPlatform implements PlatformInterface {
         {
           name: "Laravel - Run migrations",
           actions: [
-            `php ${context.remote.releaseDir}/artisan migrate`,
+            `php ${context.remote.releaseDir}/artisan migrate --force --no-interaction`,
             `php ${context.remote.releaseDir}/artisan l5-swagger:generate || echo "l5-swagger not installed"`
           ]
         },
