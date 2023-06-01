@@ -649,7 +649,7 @@ let NginxConfigRenderer = class NginxConfigRenderer {
         }
         const location = server.locations.find((location) => location.service.type === "php");
         if (location) {
-            this.renderFastCgiPhpLocation(context, location.service);
+            lines.push(...this.renderFastCgiPhpLocation(context, location.service));
             lines.push("");
         }
         if (external) {
