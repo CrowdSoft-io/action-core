@@ -175,7 +175,7 @@ export class NginxConfigRenderer {
     const lines: Array<string> = [];
 
     lines.push("        index     index.php;");
-    lines.push(`        root      ${context.remote.projectRoot}/public};`);
+    lines.push(`        root      ${context.remote.projectRoot}/public;`);
     lines.push("        try_files $uri $uri/ /index.php$is_args$args;");
 
     return lines;
