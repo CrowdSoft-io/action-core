@@ -18,12 +18,15 @@ export class GoDockerPlatform implements PlatformInterface {
 
     this.fileSystem.writeFile(".env", lines.join("\n"));
 
+    await this.runner.run("git", "submodule", "init");
+    await this.runner.run("git", "submodule", "update");
+
     return {
       files: [".", ".env"],
       preRelease: [
         {
           name: "GoDocker - Build docker container",
-          actions: [`docker build -t ${context.serviceName}_api ${context.remote.releaseDir}`]
+          actions: [`docker build -t ${context.serviceName} ${context.remote.releaseDir}`]
         }
       ]
     };
