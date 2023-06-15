@@ -41,10 +41,10 @@ export class NginxConfigRenderer {
       lines.push("    listen 443 ssl;");
       lines.push("    listen [::]:443 ssl;");
     } else if (context.branch === "main") {
-      lines.push("    listen 127.0.0.1:80");
+      lines.push("    listen 127.0.0.1:80;");
     } else {
-      lines.push("    listen 80");
-      lines.push("    listen [::]:80");
+      lines.push("    listen 80;");
+      lines.push("    listen [::]:80;");
     }
     lines.push("");
 
