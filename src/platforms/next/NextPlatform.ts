@@ -25,7 +25,7 @@ export class NextPlatform implements PlatformInterface {
       lines.push(`${name}='${environment[name]}'`);
     }
 
-    this.fileSystem.writeFile(".env", lines.join("\n"));
+    this.fileSystem.writeFile(".env", lines.join("\n"), true);
 
     await packageManager.install({ frozenLockfile: true });
     await packageManager.run("build");

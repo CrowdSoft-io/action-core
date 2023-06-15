@@ -1363,7 +1363,7 @@ let NextPlatform = class NextPlatform {
             process.env[name] = environment[name];
             lines.push(`${name}='${environment[name]}'`);
         }
-        this.fileSystem.writeFile(".env", lines.join("\n"));
+        this.fileSystem.writeFile(".env", lines.join("\n"), true);
         await packageManager.install({ frozenLockfile: true });
         await packageManager.run("build");
         await this.runner.run("rm", "-rf", "node_modules");
@@ -1529,8 +1529,8 @@ let FileSystem = class FileSystem {
     mkdir(path) {
         fs_1.default.mkdirSync(path, 0o755);
     }
-    writeFile(path, content) {
-        if (fs_1.default.existsSync(path)) {
+    writeFile(path, content, overwrite = false) {
+        if (!overwrite && fs_1.default.existsSync(path)) {
             throw new Error(`File "${path}" already exists`);
         }
         fs_1.default.writeFileSync(path, content);

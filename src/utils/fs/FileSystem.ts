@@ -11,8 +11,8 @@ export class FileSystem {
     fs.mkdirSync(path, 0o755);
   }
 
-  writeFile(path: string, content: string): void {
-    if (fs.existsSync(path)) {
+  writeFile(path: string, content: string, overwrite = false): void {
+    if (!overwrite && fs.existsSync(path)) {
       throw new Error(`File "${path}" already exists`);
     }
     fs.writeFileSync(path, content);
