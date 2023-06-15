@@ -27,7 +27,7 @@ export class TsedPlatform implements PlatformInterface {
 
     this.fileSystem.writeFile(".env.local", lines.join("\n"));
 
-    await packageManager.install({ frozenLockfile: true });
+    await packageManager.install({ ignoreScripts: true, frozenLockfile: true });
     await this.runner.run("node -v");
     await this.runner.run("ls -la node_modules");
     await packageManager.run("build");
