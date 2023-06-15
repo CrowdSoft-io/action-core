@@ -11,6 +11,8 @@ export class NpmPackageManager implements PackageManagerInterface {
     const args: Array<string> = [];
     if (options?.production) {
       args.push("--production");
+    } else {
+      args.push("--include=dev");
     }
     if (options?.ignoreScripts) {
       args.push("--ignore-scripts");

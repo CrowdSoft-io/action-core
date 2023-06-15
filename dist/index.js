@@ -1453,8 +1453,7 @@ let TsedPlatform = class TsedPlatform {
             lines.push(`${name}='${environment[name]}'`);
         }
         this.fileSystem.writeFile(".env.local", lines.join("\n"));
-        await packageManager.install({ ignoreScripts: true, frozenLockfile: true });
-        await this.runner.run("ls", "-la", "node_modules/@types");
+        await packageManager.install({ frozenLockfile: true });
         await packageManager.run("build");
         await this.runner.run("rm", "-rf", "node_modules");
         await packageManager.install({ production: true, ignoreScripts: true, frozenLockfile: true });
@@ -1746,6 +1745,9 @@ let NpmPackageManager = class NpmPackageManager {
         const args = [];
         if (options?.production) {
             args.push("--production");
+        }
+        else {
+            args.push("--include=dev");
         }
         if (options?.ignoreScripts) {
             args.push("--ignore-scripts");
