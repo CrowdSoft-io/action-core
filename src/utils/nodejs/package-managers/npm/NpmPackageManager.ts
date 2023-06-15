@@ -19,7 +19,7 @@ export class NpmPackageManager implements PackageManagerInterface {
       args.push("--no-shrinkwrap");
     }
 
-    await this.runner.run("npm", "i", ...args);
+    await this.runner.run("npm", "ci", ...args);
   }
 
   async run(command: string, ...args: Array<string>): Promise<void> {
