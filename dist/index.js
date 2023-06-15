@@ -1453,7 +1453,7 @@ let TsedPlatform = class TsedPlatform {
             lines.push(`${name}='${environment[name]}'`);
         }
         this.fileSystem.writeFile(".env.local", lines.join("\n"));
-        await packageManager.install({ ignoreScripts: true, frozenLockfile: true });
+        await packageManager.install({ frozenLockfile: true });
         await packageManager.run("build");
         await this.runner.run("rm", "-rf", "node_modules");
         await packageManager.install({ production: true, ignoreScripts: true, frozenLockfile: true });
@@ -1752,7 +1752,7 @@ let NpmPackageManager = class NpmPackageManager {
         if (options?.frozenLockfile) {
             args.push("--no-shrinkwrap");
         }
-        await this.runner.run("npm", "ci", ...args);
+        await this.runner.run("npm", "i", ...args);
     }
     async run(command, ...args) {
         await this.runner.run("npm", "run", command, ...args);
