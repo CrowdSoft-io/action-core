@@ -10,7 +10,7 @@ export class NpmPackageManager implements PackageManagerInterface {
   async install(options?: PackageManagerInstallOptions): Promise<void> {
     const args: Array<string> = [];
     if (options?.production) {
-      args.push("--production");
+      args.push("--omit=dev");
     } else {
       args.push("--include=dev");
     }

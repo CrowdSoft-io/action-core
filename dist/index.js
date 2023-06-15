@@ -1744,7 +1744,7 @@ let NpmPackageManager = class NpmPackageManager {
     async install(options) {
         const args = [];
         if (options?.production) {
-            args.push("--production");
+            args.push("--omit=dev");
         }
         else {
             args.push("--include=dev");
