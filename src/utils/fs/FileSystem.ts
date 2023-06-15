@@ -3,6 +3,10 @@ import fs from "fs";
 
 @Injectable()
 export class FileSystem {
+  exists(path: string): boolean {
+    return fs.existsSync(path);
+  }
+
   mkdir(path: string): void {
     fs.mkdirSync(path, 0o755);
   }

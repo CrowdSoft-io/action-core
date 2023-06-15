@@ -1,4 +1,5 @@
 export enum PlatformName {
   Laravel = "laravel",
-  Next = "next"
+  Next = "next",
+  Tsed = "tsed"
 }
