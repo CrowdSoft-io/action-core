@@ -17,7 +17,7 @@ export class ContextFactory {
     const localBuildDir = `build-${version}`;
     const remoteHomeDir = `/home/${options.user}`;
     const remoteWwwRoot = `${remoteHomeDir}/www`;
-    const remoteReleasesRoot = `${remoteHomeDir}/releases`;
+    const remoteReleasesRoot = `${remoteHomeDir}/releases/${repository}`;
     const remoteBuildDir = `${remoteReleasesRoot}/build-${version}`;
 
     return {
