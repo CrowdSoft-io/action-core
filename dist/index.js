@@ -1232,7 +1232,7 @@ let GoDockerPlatform = class GoDockerPlatform {
         const lines = [];
         for (const name in environment) {
             process.env[name] = environment[name];
-            lines.push(`${name}='${environment[name]}'`);
+            lines.push(`${name}=${environment[name]}`);
         }
         this.fileSystem.writeFile(".env", lines.join("\n"));
         await this.runner.run("git", "submodule", "init");

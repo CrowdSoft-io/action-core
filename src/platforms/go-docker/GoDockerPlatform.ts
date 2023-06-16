@@ -13,7 +13,7 @@ export class GoDockerPlatform implements PlatformInterface {
     const lines: Array<string> = [];
     for (const name in environment) {
       process.env[name] = environment[name];
-      lines.push(`${name}='${environment[name]}'`);
+      lines.push(`${name}=${environment[name]}`);
     }
 
     this.fileSystem.writeFile(".env", lines.join("\n"));
