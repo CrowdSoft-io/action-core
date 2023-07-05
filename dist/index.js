@@ -1144,6 +1144,7 @@ var PlatformName;
     PlatformName["GoDocker"] = "go-docker";
     PlatformName["Laravel"] = "laravel";
     PlatformName["Next"] = "next";
+    PlatformName["Symfony"] = "symfony";
     PlatformName["Tsed"] = "tsed";
 })(PlatformName = exports.PlatformName || (exports.PlatformName = {}));
 
@@ -1174,11 +1175,13 @@ const go_docker_1 = __nccwpck_require__(99426);
 const laravel_1 = __nccwpck_require__(9054);
 const next_1 = __nccwpck_require__(68749);
 const PlatformName_1 = __nccwpck_require__(41383);
+const symfony_1 = __nccwpck_require__(14345);
 const tsed_1 = __nccwpck_require__(54253);
 const dictionary = {
     [PlatformName_1.PlatformName.GoDocker]: go_docker_1.GoDockerPlatform,
     [PlatformName_1.PlatformName.Laravel]: laravel_1.LaravelPlatform,
     [PlatformName_1.PlatformName.Next]: next_1.NextPlatform,
+    [PlatformName_1.PlatformName.Symfony]: symfony_1.SymfonyPlatform,
     [PlatformName_1.PlatformName.Tsed]: tsed_1.TsedPlatform
 };
 let PlatformResolver = class PlatformResolver {
@@ -1501,6 +1504,73 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 __exportStar(__nccwpck_require__(89491), exports);
+
+
+/***/ }),
+
+/***/ 32847:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.SymfonyPlatform = void 0;
+const di_1 = __nccwpck_require__(9270);
+let SymfonyPlatform = class SymfonyPlatform {
+    async build(context) {
+        return {
+            files: ["bin", "config", "migrations", "public", "src", "composer.json"],
+            postBuild: {
+                runComposer: true
+            },
+            preRelease: [
+                {
+                    name: "Symfony - Clear cache",
+                    actions: [`php ${context.remote.releaseDir}/bin/console ca:cl`]
+                },
+                {
+                    name: "Symfony - Run migrations",
+                    actions: [`php ${context.remote.releaseDir}/bin/console do:mi:mi --no-interaction`]
+                }
+            ]
+        };
+    }
+};
+SymfonyPlatform = __decorate([
+    (0, di_1.Injectable)()
+], SymfonyPlatform);
+exports.SymfonyPlatform = SymfonyPlatform;
+
+
+/***/ }),
+
+/***/ 14345:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __exportStar = (this && this.__exportStar) || function(m, exports) {
+    for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+__exportStar(__nccwpck_require__(32847), exports);
 
 
 /***/ }),
