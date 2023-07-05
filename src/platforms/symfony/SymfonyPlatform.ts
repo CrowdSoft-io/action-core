@@ -1,13 +1,24 @@
-import { Injectable } from "@tsed/di";
+import { Inject, Injectable } from "@tsed/di";
 import { Context } from "../../models";
+import { FileSystem } from "../../utils/fs";
 import { PlatformBuildResult } from "../PlatformBuildResult";
 import { PlatformInterface } from "../PlatformInterface";
 
 @Injectable()
 export class SymfonyPlatform implements PlatformInterface {
-  async build(context: Context): Promise<PlatformBuildResult> {
+  constructor(@Inject() private readonly fileSystem: FileSystem) {}
+
+  async build(context: Context, environment: Record<string, string>): Promise<PlatformBuildResult> {
+    const lines: Array<string> = [];
+    for (const name in environment) {
+      process.env[name] = environment[name];
+      lines.push(`${name}='${environment[name]}'`);
+    }
+
+    this.fileSystem.writeFile(".env.local", lines.join("\n"));
+
     return {
-      files: ["bin", "config", "migrations", "public", "src", "composer.json"],
+      files: ["bin", "config", "migrations", "public", "src", ".env.local", "composer.json"],
       postBuild: {
         runComposer: true
       },
