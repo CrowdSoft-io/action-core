@@ -1249,7 +1249,7 @@ let GoDockerPlatform = class GoDockerPlatform {
         await this.runner.run("git", "submodule", "init");
         await this.runner.run("git", "submodule", "update");
         return {
-            files: ["platform-auth", ".env", "Dockerfile", "cli.sh"],
+            files: ["platform-*", ".env", "Dockerfile", "cli.sh"],
             preRelease: [
                 {
                     name: "GoDocker - Build docker container",

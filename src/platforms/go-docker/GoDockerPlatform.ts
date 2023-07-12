@@ -22,7 +22,7 @@ export class GoDockerPlatform implements PlatformInterface {
     await this.runner.run("git", "submodule", "update");
 
     return {
-      files: ["platform-auth", ".env", "Dockerfile", "cli.sh"], // TODO fix this list
+      files: ["platform-*", ".env", "Dockerfile", "cli.sh"], // TODO fix this list
       preRelease: [
         {
           name: "GoDocker - Build docker container",
