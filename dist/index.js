@@ -1248,8 +1248,14 @@ let GoDockerPlatform = class GoDockerPlatform {
         this.fileSystem.writeFile(".env", lines.join("\n"));
         await this.runner.run("git", "submodule", "init");
         await this.runner.run("git", "submodule", "update");
+        const gitmodules = this.fileSystem.readFile(".gitmodules");
+        const matches = /\[submodule "([\w-]+)"]/.exec(gitmodules);
+        const submodule = matches?.[1];
+        if (!submodule) {
+            throw new Error("Submodule is not detected");
+        }
         return {
-            files: ["platform-*", ".env", "Dockerfile"],
+            files: [submodule, ".env", "Dockerfile"],
             preRelease: [
                 {
                     name: "GoDocker - Build docker container",
@@ -1787,6 +1793,9 @@ let FileSystem = class FileSystem {
     }
     mkdir(path) {
         fs_1.default.mkdirSync(path, 0o755);
+    }
+    readFile(path) {
+        return fs_1.default.readFileSync(path).toString();
     }
     writeFile(path, content, overwrite = false) {
         if (!overwrite && fs_1.default.existsSync(path)) {
