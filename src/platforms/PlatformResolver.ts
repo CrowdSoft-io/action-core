@@ -4,6 +4,7 @@ import { LaravelPlatform } from "./laravel";
 import { NextPlatform } from "./next";
 import { PlatformInterface } from "./PlatformInterface";
 import { PlatformName } from "./PlatformName";
+import { ReactPlatform } from "./react";
 import { SymfonyPlatform } from "./symfony";
 import { TsedPlatform } from "./tsed";
 
@@ -11,6 +12,7 @@ const dictionary: Record<PlatformName, TokenProvider<PlatformInterface>> = {
   [PlatformName.GoDocker]: GoDockerPlatform,
   [PlatformName.Laravel]: LaravelPlatform,
   [PlatformName.Next]: NextPlatform,
+  [PlatformName.React]: ReactPlatform,
   [PlatformName.Symfony]: SymfonyPlatform,
   [PlatformName.Tsed]: TsedPlatform
 };
