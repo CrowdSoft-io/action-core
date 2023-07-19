@@ -1623,9 +1623,9 @@ let SymfonyPlatform = class SymfonyPlatform {
             process.env[name] = environment[name];
             lines.push(`${name}='${environment[name]}'`);
         }
-        this.fileSystem.writeFile(".env.local", lines.join("\n"));
+        this.fileSystem.writeFile(".env", lines.join("\n"), true);
         return {
-            files: ["bin", "config", "migrations", "public", "src", ".env.local", "composer.json"],
+            files: ["bin", "config", "migrations", "public", "src", ".env", "composer.json"],
             postBuild: {
                 runComposer: true
             },
