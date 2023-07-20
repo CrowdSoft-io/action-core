@@ -1624,8 +1624,12 @@ let SymfonyPlatform = class SymfonyPlatform {
             lines.push(`${name}='${environment[name]}'`);
         }
         this.fileSystem.writeFile(".env", lines.join("\n"), true);
+        const files = ["bin", "config", "public", "src", ".env", "composer.json"];
+        if (this.fileSystem.exists("migrations")) {
+            files.push("migrations");
+        }
         return {
-            files: ["bin", "config", "migrations", "public", "src", ".env", "composer.json"],
+            files,
             postBuild: {
                 runComposer: true
             },
