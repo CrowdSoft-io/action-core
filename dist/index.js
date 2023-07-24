@@ -597,14 +597,42 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.FileSystemInfrastructure = void 0;
 class FileSystemInfrastructure {
     async build(context, config) {
+        const templateParams = {
+            storage_root: context.remote.storageRoot,
+            release_dir: context.remote.releaseDir
+        };
         const preRelease = [];
+        if (config.directories?.length) {
+            preRelease.push({
+                name: "File system - Create directories",
+                actions: config.directories
+                    .map((path) => this.render(path, templateParams))
+                    .map((path) => `[[ ! -d '${path}' ]] && mkdir -p '${path}' || echo '${path} already created'`)
+            });
+        }
         if (config.symlinks?.length) {
-            preRelease.push({ name: "Create symlinks", actions: config.symlinks.map((symlink) => `ln -s '${symlink.from}' '${symlink.to}'`) });
+            preRelease.push({
+                name: "File system - Create symlinks",
+                actions: config.symlinks
+                    .map((symlink) => ({
+                    from: this.render(symlink.from, templateParams),
+                    to: this.render(symlink.to, templateParams)
+                }))
+                    .map((symlink) => `ln -s '${symlink.from}' '${symlink.to}'`)
+            });
         }
         return {
             preRelease,
             postRelease: []
         };
+    }
+    render(template, params) {
+        return template.replace(/%(\w+)%/g, (str, name) => {
+            if (!params[name]) {
+                throw new Error(`Params "${name}" not set`);
+            }
+            return params[name];
+        });
     }
 }
 exports.FileSystemInfrastructure = FileSystemInfrastructure;
