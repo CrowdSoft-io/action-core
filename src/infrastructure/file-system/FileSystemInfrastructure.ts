@@ -1,8 +1,10 @@
+import { Injectable } from "@tsed/di";
 import { Context, ReleaseStage } from "../../models";
 import { InfrastructureBuildResult } from "../InfrastructureBuildResult";
 import { InfrastructureInterface } from "../InfrastructureInterface";
 import { FileSystemConfig } from "./FileSystemConfig";
 
+@Injectable()
 export class FileSystemInfrastructure implements InfrastructureInterface {
   async build(context: Context, config: FileSystemConfig): Promise<InfrastructureBuildResult> {
     const templateParams = {
