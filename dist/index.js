@@ -458,6 +458,7 @@ exports.InfrastructureName = void 0;
 var InfrastructureName;
 (function (InfrastructureName) {
     InfrastructureName["Cron"] = "cron";
+    InfrastructureName["FileSystem"] = "file_system";
     InfrastructureName["Nginx"] = "nginx";
     InfrastructureName["Rabbitmq"] = "rabbitmq";
     InfrastructureName["Supervisor"] = "supervisor";
@@ -487,12 +488,14 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.InfrastructureResolver = void 0;
 const di_1 = __nccwpck_require__(9270);
 const cron_1 = __nccwpck_require__(75474);
+const file_system_1 = __nccwpck_require__(63718);
 const InfrastructureName_1 = __nccwpck_require__(75074);
 const nginx_1 = __nccwpck_require__(29723);
 const rabbitmq_1 = __nccwpck_require__(26870);
 const supervisor_1 = __nccwpck_require__(21882);
 const dictionary = {
     [InfrastructureName_1.InfrastructureName.Cron]: cron_1.CronInfrastructure,
+    [InfrastructureName_1.InfrastructureName.FileSystem]: file_system_1.FileSystemInfrastructure,
     [InfrastructureName_1.InfrastructureName.Nginx]: nginx_1.NginxInfrastructure,
     [InfrastructureName_1.InfrastructureName.Rabbitmq]: rabbitmq_1.RabbitmqInfrastructure,
     [InfrastructureName_1.InfrastructureName.Supervisor]: supervisor_1.SupervisorInfrastructure
@@ -575,6 +578,66 @@ __exportStar(__nccwpck_require__(89215), exports);
 
 /***/ }),
 
+/***/ 88422:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+
+
+/***/ }),
+
+/***/ 82708:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.FileSystemInfrastructure = void 0;
+class FileSystemInfrastructure {
+    async build(context, config) {
+        const preRelease = [];
+        if (config.symlinks?.length) {
+            preRelease.push({ name: "Create symlinks", actions: config.symlinks.map((symlink) => `ln -s '${symlink.from}' '${symlink.to}'`) });
+        }
+        return {
+            preRelease,
+            postRelease: []
+        };
+    }
+}
+exports.FileSystemInfrastructure = FileSystemInfrastructure;
+
+
+/***/ }),
+
+/***/ 63718:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __exportStar = (this && this.__exportStar) || function(m, exports) {
+    for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+__exportStar(__nccwpck_require__(88422), exports);
+__exportStar(__nccwpck_require__(82708), exports);
+
+
+/***/ }),
+
 /***/ 18051:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
@@ -596,6 +659,7 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 __exportStar(__nccwpck_require__(75474), exports);
+__exportStar(__nccwpck_require__(63718), exports);
 __exportStar(__nccwpck_require__(29723), exports);
 __exportStar(__nccwpck_require__(26870), exports);
 __exportStar(__nccwpck_require__(21882), exports);

@@ -1,5 +1,6 @@
 import { Inject, Injectable, InjectorService, TokenProvider } from "@tsed/di";
 import { CronInfrastructure } from "./cron";
+import { FileSystemInfrastructure } from "./file-system";
 import { InfrastructureInterface } from "./InfrastructureInterface";
 import { InfrastructureName } from "./InfrastructureName";
 import { NginxInfrastructure } from "./nginx";
@@ -8,6 +9,7 @@ import { SupervisorInfrastructure } from "./supervisor";
 
 const dictionary: Record<InfrastructureName, TokenProvider<InfrastructureInterface>> = {
   [InfrastructureName.Cron]: CronInfrastructure,
+  [InfrastructureName.FileSystem]: FileSystemInfrastructure,
   [InfrastructureName.Nginx]: NginxInfrastructure,
   [InfrastructureName.Rabbitmq]: RabbitmqInfrastructure,
   [InfrastructureName.Supervisor]: SupervisorInfrastructure
