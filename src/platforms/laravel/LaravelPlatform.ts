@@ -1,29 +1,37 @@
-import { Injectable } from "@tsed/di";
+import { Inject, Injectable } from "@tsed/di";
 import { Context } from "../../models";
+import { FileSystem } from "../../utils/fs";
 import { PlatformBuildResult } from "../PlatformBuildResult";
 import { PlatformInterface } from "../PlatformInterface";
 
 @Injectable()
 export class LaravelPlatform implements PlatformInterface {
+  constructor(@Inject() private readonly fileSystem: FileSystem) {}
+
   async build(context: Context): Promise<PlatformBuildResult> {
     const storageAppPath = `${context.remote.storageRoot}/app`;
     const paths = [storageAppPath];
 
+    const files: Array<string> = [
+      "app",
+      "bootstrap",
+      "config",
+      "database",
+      "public",
+      "resources",
+      "routes",
+      "storage/framework",
+      "storage/logs",
+      "artisan",
+      "composer.json"
+    ];
+
+    if (this.fileSystem.exists("lang")) {
+      files.push("lang");
+    }
+
     return {
-      files: [
-        "app",
-        "bootstrap",
-        "config",
-        "database",
-        "lang",
-        "public",
-        "resources",
-        "routes",
-        "storage/framework",
-        "storage/logs",
-        "artisan",
-        "composer.json"
-      ],
+      files,
       postBuild: {
         runComposer: true
       },
