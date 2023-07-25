@@ -4,5 +4,6 @@ export enum PlatformName {
   Next = "next",
   React = "react",
   Symfony = "symfony",
-  Tsed = "tsed"
+  Tsed = "tsed",
+  VueJs = "vue-js"
 }

@@ -7,6 +7,7 @@ import { PlatformName } from "./PlatformName";
 import { ReactPlatform } from "./react";
 import { SymfonyPlatform } from "./symfony";
 import { TsedPlatform } from "./tsed";
+import { VueJsPlatform } from "./vue-js";
 
 const dictionary: Record<PlatformName, TokenProvider<PlatformInterface>> = {
   [PlatformName.GoDocker]: GoDockerPlatform,
@@ -14,7 +15,8 @@ const dictionary: Record<PlatformName, TokenProvider<PlatformInterface>> = {
   [PlatformName.Next]: NextPlatform,
   [PlatformName.React]: ReactPlatform,
   [PlatformName.Symfony]: SymfonyPlatform,
-  [PlatformName.Tsed]: TsedPlatform
+  [PlatformName.Tsed]: TsedPlatform,
+  [PlatformName.VueJs]: VueJsPlatform
 };
 
 @Injectable()

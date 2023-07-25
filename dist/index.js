@@ -1249,6 +1249,7 @@ var PlatformName;
     PlatformName["React"] = "react";
     PlatformName["Symfony"] = "symfony";
     PlatformName["Tsed"] = "tsed";
+    PlatformName["VueJs"] = "vue-js";
 })(PlatformName = exports.PlatformName || (exports.PlatformName = {}));
 
 
@@ -1281,13 +1282,15 @@ const PlatformName_1 = __nccwpck_require__(41383);
 const react_1 = __nccwpck_require__(19327);
 const symfony_1 = __nccwpck_require__(14345);
 const tsed_1 = __nccwpck_require__(54253);
+const vue_js_1 = __nccwpck_require__(35843);
 const dictionary = {
     [PlatformName_1.PlatformName.GoDocker]: go_docker_1.GoDockerPlatform,
     [PlatformName_1.PlatformName.Laravel]: laravel_1.LaravelPlatform,
     [PlatformName_1.PlatformName.Next]: next_1.NextPlatform,
     [PlatformName_1.PlatformName.React]: react_1.ReactPlatform,
     [PlatformName_1.PlatformName.Symfony]: symfony_1.SymfonyPlatform,
-    [PlatformName_1.PlatformName.Tsed]: tsed_1.TsedPlatform
+    [PlatformName_1.PlatformName.Tsed]: tsed_1.TsedPlatform,
+    [PlatformName_1.PlatformName.VueJs]: vue_js_1.VueJsPlatform
 };
 let PlatformResolver = class PlatformResolver {
     injectorService;
@@ -1423,8 +1426,13 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
     for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
+__exportStar(__nccwpck_require__(99426), exports);
 __exportStar(__nccwpck_require__(9054), exports);
 __exportStar(__nccwpck_require__(68749), exports);
+__exportStar(__nccwpck_require__(19327), exports);
+__exportStar(__nccwpck_require__(14345), exports);
+__exportStar(__nccwpck_require__(54253), exports);
+__exportStar(__nccwpck_require__(35843), exports);
 __exportStar(__nccwpck_require__(41516), exports);
 __exportStar(__nccwpck_require__(72032), exports);
 __exportStar(__nccwpck_require__(41383), exports);
@@ -1872,6 +1880,80 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 __exportStar(__nccwpck_require__(82081), exports);
+
+
+/***/ }),
+
+/***/ 29778:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.VueJsPlatform = void 0;
+const di_1 = __nccwpck_require__(9270);
+const nodejs_1 = __nccwpck_require__(99140);
+let VueJsPlatform = class VueJsPlatform {
+    packageManagerResolver;
+    constructor(packageManagerResolver) {
+        this.packageManagerResolver = packageManagerResolver;
+    }
+    async build(context, environment) {
+        const packageManager = this.packageManagerResolver.resolve();
+        process.env.CI = "true";
+        for (const name in environment) {
+            process.env[name] = environment[name];
+        }
+        await packageManager.install({ frozenLockfile: true });
+        await packageManager.run("build");
+        return {
+            files: ["dist"]
+        };
+    }
+};
+VueJsPlatform = __decorate([
+    (0, di_1.Injectable)(),
+    __param(0, (0, di_1.Inject)()),
+    __metadata("design:paramtypes", [nodejs_1.PackageManagerResolver])
+], VueJsPlatform);
+exports.VueJsPlatform = VueJsPlatform;
+
+
+/***/ }),
+
+/***/ 35843:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __exportStar = (this && this.__exportStar) || function(m, exports) {
+    for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+__exportStar(__nccwpck_require__(29778), exports);
 
 
 /***/ }),
