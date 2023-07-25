@@ -12,10 +12,8 @@ export class GoDockerPlatform implements PlatformInterface {
   async build(context: Context, environment: Record<string, string>): Promise<PlatformBuildResult> {
     const lines: Array<string> = [];
     for (const name in environment) {
-      process.env[name] = environment[name];
       lines.push(`${name}=${environment[name]}`);
     }
-
     this.fileSystem.writeFile(".env", lines.join("\n"));
 
     await this.runner.run("git", "submodule", "init");

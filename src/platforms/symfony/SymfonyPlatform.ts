@@ -11,10 +11,8 @@ export class SymfonyPlatform implements PlatformInterface {
   async build(context: Context, environment: Record<string, string>): Promise<PlatformBuildResult> {
     const lines: Array<string> = [];
     for (const name in environment) {
-      process.env[name] = environment[name];
       lines.push(`${name}='${environment[name]}'`);
     }
-
     this.fileSystem.writeFile(".env", lines.join("\n"), true);
 
     const files = ["bin", "config", "public", "src", ".env", "composer.json"];

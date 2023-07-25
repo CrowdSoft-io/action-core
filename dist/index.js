@@ -1347,7 +1347,6 @@ let GoDockerPlatform = class GoDockerPlatform {
     async build(context, environment) {
         const lines = [];
         for (const name in environment) {
-            process.env[name] = environment[name];
             lines.push(`${name}=${environment[name]}`);
         }
         this.fileSystem.writeFile(".env", lines.join("\n"));
@@ -1468,11 +1467,8 @@ let LaravelPlatform = class LaravelPlatform {
         this.fileSystem = fileSystem;
     }
     async build(context, environment) {
-        const storageAppPath = `${context.remote.storageRoot}/app`;
-        const paths = [storageAppPath];
         const lines = [];
         for (const name in environment) {
-            process.env[name] = environment[name];
             lines.push(`${name}='${environment[name]}'`);
         }
         this.fileSystem.writeFile(".env", lines.join("\n"));
@@ -1499,17 +1495,6 @@ let LaravelPlatform = class LaravelPlatform {
                 runComposer: true
             },
             preRelease: [
-                {
-                    name: "Laravel - Create directories",
-                    actions: paths.map((path) => `[[ ! -d '${path}' ]] && mkdir -p '${path}' || echo '${path} already created'`)
-                },
-                {
-                    name: "Laravel - Configure project",
-                    actions: [
-                        `ln -s '${storageAppPath}' '${context.remote.releaseDir}/storage/app'`,
-                        `cp '${context.remote.configsRoot}/.env' '${context.remote.releaseDir}/'`
-                    ]
-                },
                 {
                     name: "Laravel - Run migrations",
                     actions: [`php ${context.remote.releaseDir}/artisan migrate --force --no-interaction`]
@@ -1753,7 +1738,6 @@ let SymfonyPlatform = class SymfonyPlatform {
     async build(context, environment) {
         const lines = [];
         for (const name in environment) {
-            process.env[name] = environment[name];
             lines.push(`${name}='${environment[name]}'`);
         }
         this.fileSystem.writeFile(".env", lines.join("\n"), true);
@@ -1851,7 +1835,6 @@ let TsedPlatform = class TsedPlatform {
         process.env.CI = "true";
         const lines = [];
         for (const name in environment) {
-            process.env[name] = environment[name];
             lines.push(`${name}='${environment[name]}'`);
         }
         this.fileSystem.writeFile(".env.local", lines.join("\n"));
