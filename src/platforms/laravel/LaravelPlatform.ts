@@ -8,9 +8,17 @@ import { PlatformInterface } from "../PlatformInterface";
 export class LaravelPlatform implements PlatformInterface {
   constructor(@Inject() private readonly fileSystem: FileSystem) {}
 
-  async build(context: Context): Promise<PlatformBuildResult> {
+  async build(context: Context, environment: Record<string, string>): Promise<PlatformBuildResult> {
     const storageAppPath = `${context.remote.storageRoot}/app`;
     const paths = [storageAppPath];
+
+    const lines: Array<string> = [];
+    for (const name in environment) {
+      process.env[name] = environment[name];
+      lines.push(`${name}='${environment[name]}'`);
+    }
+
+    this.fileSystem.writeFile(".env", lines.join("\n"));
 
     const files: Array<string> = [
       "app",

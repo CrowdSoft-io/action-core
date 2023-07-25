@@ -1467,9 +1467,15 @@ let LaravelPlatform = class LaravelPlatform {
     constructor(fileSystem) {
         this.fileSystem = fileSystem;
     }
-    async build(context) {
+    async build(context, environment) {
         const storageAppPath = `${context.remote.storageRoot}/app`;
         const paths = [storageAppPath];
+        const lines = [];
+        for (const name in environment) {
+            process.env[name] = environment[name];
+            lines.push(`${name}='${environment[name]}'`);
+        }
+        this.fileSystem.writeFile(".env", lines.join("\n"));
         const files = [
             "app",
             "bootstrap",
