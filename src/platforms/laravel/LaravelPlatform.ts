@@ -30,6 +30,7 @@ export class LaravelPlatform implements PlatformInterface {
       "routes",
       "storage/framework",
       "storage/logs",
+      ".env",
       "artisan",
       "composer.json"
     ];

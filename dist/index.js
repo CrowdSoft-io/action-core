@@ -1486,6 +1486,7 @@ let LaravelPlatform = class LaravelPlatform {
             "routes",
             "storage/framework",
             "storage/logs",
+            ".env",
             "artisan",
             "composer.json"
         ];
