@@ -31,8 +31,14 @@ export class TsedPlatform implements PlatformInterface {
     await packageManager.install({ production: true, ignoreScripts: true, frozenLockfile: true });
 
     const files: Array<string> = ["dist", "node_modules", ".env.local", "package.json"];
+    if (this.fileSystem.exists("assets")) {
+      files.push("assets");
+    }
     if (this.fileSystem.exists("spec")) {
       files.push("spec");
+    }
+    if (this.fileSystem.exists("views")) {
+      files.push("views");
     }
 
     return {

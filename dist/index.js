@@ -1849,8 +1849,14 @@ let TsedPlatform = class TsedPlatform {
         await this.runner.run("rm", "-rf", "node_modules");
         await packageManager.install({ production: true, ignoreScripts: true, frozenLockfile: true });
         const files = ["dist", "node_modules", ".env.local", "package.json"];
+        if (this.fileSystem.exists("assets")) {
+            files.push("assets");
+        }
         if (this.fileSystem.exists("spec")) {
             files.push("spec");
+        }
+        if (this.fileSystem.exists("views")) {
+            files.push("views");
         }
         return {
             files
