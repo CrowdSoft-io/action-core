@@ -1,13 +1,14 @@
 import { Inject, Injectable } from "@tsed/di";
 import { Context, ReleaseStage } from "../../models";
 import { FileSystem } from "../../utils/fs";
+import { Templating } from "../../utils/templating";
 import { InfrastructureBuildResult } from "../InfrastructureBuildResult";
 import { InfrastructureInterface } from "../InfrastructureInterface";
 import { SupervisorConfig } from "./SupervisorConfig";
 
 @Injectable()
 export class SupervisorInfrastructure implements InfrastructureInterface {
-  constructor(@Inject() private readonly fileSystem: FileSystem) {}
+  constructor(@Inject() private readonly fileSystem: FileSystem, @Inject() private readonly templating: Templating) {}
 
   async build(context: Context, config: SupervisorConfig): Promise<InfrastructureBuildResult> {
     const localDir = `${context.local.buildDir}/supervisor`;
@@ -29,8 +30,10 @@ export class SupervisorInfrastructure implements InfrastructureInterface {
     ];
 
     for (const program of config.programs) {
+      const command = this.templating.render(context, program.command);
+
       lines.push(`[program:${context.serviceName}_${program.name}]`);
-      lines.push(`command=${program.command.replace("%project_root%", context.remote.projectRoot)}`);
+      lines.push(`command=${command}`);
       lines.push(`directory=${context.remote.projectRoot}`);
       lines.push("autostart=true");
       lines.push("autorestart=true");

@@ -599,21 +599,28 @@ var __decorate = (this && this.__decorate) || function (decorators, target, key,
     else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
     return c > 3 && r && Object.defineProperty(target, key, r), r;
 };
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.FileSystemInfrastructure = void 0;
 const di_1 = __nccwpck_require__(9270);
+const templating_1 = __nccwpck_require__(49547);
 let FileSystemInfrastructure = class FileSystemInfrastructure {
+    templating;
+    constructor(templating) {
+        this.templating = templating;
+    }
     async build(context, config) {
-        const templateParams = {
-            storage_root: context.remote.storageRoot,
-            release_dir: context.remote.releaseDir
-        };
         const preRelease = [];
         if (config.directories?.length) {
             preRelease.push({
                 name: "File system - Create directories",
                 actions: config.directories
-                    .map((path) => this.render(path, templateParams))
+                    .map((path) => this.templating.render(context, path))
                     .map((path) => `[[ ! -d '${path}' ]] && mkdir -p '${path}' || echo '${path} already created'`)
             });
         }
@@ -622,8 +629,8 @@ let FileSystemInfrastructure = class FileSystemInfrastructure {
                 name: "File system - Create symlinks",
                 actions: config.symlinks
                     .map((symlink) => ({
-                    from: this.render(symlink.from, templateParams),
-                    to: this.render(symlink.to, templateParams)
+                    from: this.templating.render(context, symlink.from),
+                    to: this.templating.render(context, symlink.to)
                 }))
                     .map((symlink) => `ln -s '${symlink.from}' '${symlink.to}'`)
             });
@@ -633,17 +640,11 @@ let FileSystemInfrastructure = class FileSystemInfrastructure {
             postRelease: []
         };
     }
-    render(template, params) {
-        return template.replace(/%(\w+)%/g, (str, name) => {
-            if (!params[name]) {
-                throw new Error(`Params "${name}" not set`);
-            }
-            return params[name];
-        });
-    }
 };
 FileSystemInfrastructure = __decorate([
-    (0, di_1.Injectable)()
+    (0, di_1.Injectable)(),
+    __param(0, (0, di_1.Inject)()),
+    __metadata("design:paramtypes", [templating_1.Templating])
 ], FileSystemInfrastructure);
 exports.FileSystemInfrastructure = FileSystemInfrastructure;
 
@@ -1109,10 +1110,13 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.SupervisorInfrastructure = void 0;
 const di_1 = __nccwpck_require__(9270);
 const fs_1 = __nccwpck_require__(75312);
+const templating_1 = __nccwpck_require__(49547);
 let SupervisorInfrastructure = class SupervisorInfrastructure {
     fileSystem;
-    constructor(fileSystem) {
+    templating;
+    constructor(fileSystem, templating) {
         this.fileSystem = fileSystem;
+        this.templating = templating;
     }
     async build(context, config) {
         const localDir = `${context.local.buildDir}/supervisor`;
@@ -1130,8 +1134,9 @@ let SupervisorInfrastructure = class SupervisorInfrastructure {
             ""
         ];
         for (const program of config.programs) {
+            const command = this.templating.render(context, program.command);
             lines.push(`[program:${context.serviceName}_${program.name}]`);
-            lines.push(`command=${program.command.replace("%project_root%", context.remote.projectRoot)}`);
+            lines.push(`command=${command}`);
             lines.push(`directory=${context.remote.projectRoot}`);
             lines.push("autostart=true");
             lines.push("autorestart=true");
@@ -1181,7 +1186,8 @@ let SupervisorInfrastructure = class SupervisorInfrastructure {
 SupervisorInfrastructure = __decorate([
     (0, di_1.Injectable)(),
     __param(0, (0, di_1.Inject)()),
-    __metadata("design:paramtypes", [fs_1.FileSystem])
+    __param(1, (0, di_1.Inject)()),
+    __metadata("design:paramtypes", [fs_1.FileSystem, templating_1.Templating])
 ], SupervisorInfrastructure);
 exports.SupervisorInfrastructure = SupervisorInfrastructure;
 
@@ -2400,6 +2406,71 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 __exportStar(__nccwpck_require__(47784), exports);
+
+
+/***/ }),
+
+/***/ 35001:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.Templating = void 0;
+const di_1 = __nccwpck_require__(9270);
+let Templating = class Templating {
+    render(context, template) {
+        const params = this.createParams(context);
+        return template.replace(/%(\w+)%/g, (str, name) => {
+            if (!params[name]) {
+                throw new Error(`Params "${name}" not set`);
+            }
+            return params[name];
+        });
+    }
+    createParams(context) {
+        return {
+            project_root: context.remote.projectRoot,
+            storage_root: context.remote.storageRoot,
+            release_dir: context.remote.releaseDir
+        };
+    }
+};
+Templating = __decorate([
+    (0, di_1.Injectable)()
+], Templating);
+exports.Templating = Templating;
+
+
+/***/ }),
+
+/***/ 49547:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __exportStar = (this && this.__exportStar) || function(m, exports) {
+    for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+__exportStar(__nccwpck_require__(35001), exports);
 
 
 /***/ }),
