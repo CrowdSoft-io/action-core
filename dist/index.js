@@ -1922,18 +1922,24 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.VueJsPlatform = void 0;
 const di_1 = __nccwpck_require__(9270);
+const fs_1 = __nccwpck_require__(75312);
 const nodejs_1 = __nccwpck_require__(99140);
 let VueJsPlatform = class VueJsPlatform {
     packageManagerResolver;
-    constructor(packageManagerResolver) {
+    fileSystem;
+    constructor(packageManagerResolver, fileSystem) {
         this.packageManagerResolver = packageManagerResolver;
+        this.fileSystem = fileSystem;
     }
     async build(context, environment) {
         const packageManager = this.packageManagerResolver.resolve();
         process.env.CI = "true";
+        const lines = [];
         for (const name in environment) {
             process.env[name] = environment[name];
+            lines.push(`${name}='${environment[name]}'`);
         }
+        this.fileSystem.writeFile(".env", lines.join("\n"), true);
         await packageManager.install({ frozenLockfile: true });
         await packageManager.run("build");
         return {
@@ -1944,7 +1950,9 @@ let VueJsPlatform = class VueJsPlatform {
 VueJsPlatform = __decorate([
     (0, di_1.Injectable)(),
     __param(0, (0, di_1.Inject)()),
-    __metadata("design:paramtypes", [nodejs_1.PackageManagerResolver])
+    __param(1, (0, di_1.Inject)()),
+    __metadata("design:paramtypes", [nodejs_1.PackageManagerResolver,
+        fs_1.FileSystem])
 ], VueJsPlatform);
 exports.VueJsPlatform = VueJsPlatform;
 
