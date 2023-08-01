@@ -1475,8 +1475,9 @@ let LaravelPlatform = class LaravelPlatform {
     async build(context, environment) {
         const lines = [];
         for (const name in environment) {
-            lines.push(`${name}='${environment[name]}'`);
+            lines.push(`${name}=${environment[name] ?? ""}`);
         }
+        lines.sort();
         this.fileSystem.writeFile(".env", lines.join("\n"));
         const files = [
             "app",

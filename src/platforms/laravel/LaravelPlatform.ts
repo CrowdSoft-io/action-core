@@ -11,8 +11,9 @@ export class LaravelPlatform implements PlatformInterface {
   async build(context: Context, environment: Record<string, string>): Promise<PlatformBuildResult> {
     const lines: Array<string> = [];
     for (const name in environment) {
-      lines.push(`${name}='${environment[name]}'`);
+      lines.push(`${name}=${environment[name] ?? ""}`);
     }
+    lines.sort();
     this.fileSystem.writeFile(".env", lines.join("\n"));
 
     const files: Array<string> = [
