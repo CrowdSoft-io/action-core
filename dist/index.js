@@ -855,7 +855,7 @@ let NginxConfigRenderer = class NginxConfigRenderer {
         lines.push("    location ~ .php$ {");
         lines.push(`        root         ${context.remote.projectRoot}/public;`);
         lines.push("        include      snippets/fastcgi-php.conf;");
-        lines.push(`        fastcgi_pass unix:/var/run/php/php${service.options.version}-fpm-${context.projectName}.sock;`);
+        lines.push(`        fastcgi_pass unix:/var/run/php/php${service.options.version}-fpm-${context.remote.user}.sock;`);
         lines.push("    }");
         return lines;
     }
