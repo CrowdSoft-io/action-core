@@ -11,6 +11,10 @@ export class FileSystem {
     fs.mkdirSync(path, 0o755);
   }
 
+  rename(oldPath: string, newPath: string): void {
+    fs.renameSync(oldPath, newPath);
+  }
+
   readFile(path: string): string {
     return fs.readFileSync(path).toString();
   }

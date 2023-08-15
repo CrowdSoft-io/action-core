@@ -1662,11 +1662,14 @@ var __param = (this && this.__param) || function (paramIndex, decorator) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.ReactPlatform = void 0;
 const di_1 = __nccwpck_require__(9270);
+const fs_1 = __nccwpck_require__(75312);
 const nodejs_1 = __nccwpck_require__(99140);
 let ReactPlatform = class ReactPlatform {
     packageManagerResolver;
-    constructor(packageManagerResolver) {
+    fileSystem;
+    constructor(packageManagerResolver, fileSystem) {
         this.packageManagerResolver = packageManagerResolver;
+        this.fileSystem = fileSystem;
     }
     async build(context, environment) {
         const packageManager = this.packageManagerResolver.resolve();
@@ -1676,6 +1679,7 @@ let ReactPlatform = class ReactPlatform {
         }
         await packageManager.install({ frozenLockfile: true });
         await packageManager.run("build");
+        this.fileSystem.rename("build", "dist");
         return {
             files: ["dist"]
         };
@@ -1684,7 +1688,9 @@ let ReactPlatform = class ReactPlatform {
 ReactPlatform = __decorate([
     (0, di_1.Injectable)(),
     __param(0, (0, di_1.Inject)()),
-    __metadata("design:paramtypes", [nodejs_1.PackageManagerResolver])
+    __param(1, (0, di_1.Inject)()),
+    __metadata("design:paramtypes", [nodejs_1.PackageManagerResolver,
+        fs_1.FileSystem])
 ], ReactPlatform);
 exports.ReactPlatform = ReactPlatform;
 
@@ -2009,6 +2015,9 @@ let FileSystem = class FileSystem {
     }
     mkdir(path) {
         fs_1.default.mkdirSync(path, 0o755);
+    }
+    rename(oldPath, newPath) {
+        fs_1.default.renameSync(oldPath, newPath);
     }
     readFile(path) {
         return fs_1.default.readFileSync(path).toString();
