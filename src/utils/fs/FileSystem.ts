@@ -15,6 +15,10 @@ export class FileSystem {
     fs.renameSync(oldPath, newPath);
   }
 
+  readDir(path: string): Array<string> {
+    return fs.readdirSync(path);
+  }
+
   readFile(path: string): string {
     return fs.readFileSync(path).toString();
   }

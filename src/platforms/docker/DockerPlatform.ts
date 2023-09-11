@@ -15,8 +15,24 @@ export class DockerPlatform implements PlatformInterface {
     }
     this.fileSystem.writeFile(".env", lines.join("\n"));
 
+    const files: Array<string> = this.fileSystem.readDir(".");
+
+    if (this.fileSystem.exists(".dockerignore")) {
+      const exclude = this.fileSystem
+        .readFile(".dockerignore")
+        .split("\n")
+        .map((file) => file.replace(/^\s+|\s+$/g, ""))
+        .filter(Boolean);
+      for (const file of exclude) {
+        const index = files.indexOf(file);
+        if (index > -1) {
+          files.splice(index, 1);
+        }
+      }
+    }
+
     return {
-      files: [".env", "Dockerfile"],
+      files,
       preRelease: [
         {
           name: "Docker - Build container",

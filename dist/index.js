@@ -1356,8 +1356,22 @@ let DockerPlatform = class DockerPlatform {
             lines.push(`${name}=${environment[name]}`);
         }
         this.fileSystem.writeFile(".env", lines.join("\n"));
+        const files = this.fileSystem.readDir(".");
+        if (this.fileSystem.exists(".dockerignore")) {
+            const exclude = this.fileSystem
+                .readFile(".dockerignore")
+                .split("\n")
+                .map((file) => file.replace(/^\s+|\s+$/g, ""))
+                .filter(Boolean);
+            for (const file of exclude) {
+                const index = files.indexOf(file);
+                if (index > -1) {
+                    files.splice(index, 1);
+                }
+            }
+        }
         return {
-            files: [".env", "Dockerfile"],
+            files,
             preRelease: [
                 {
                     name: "Docker - Build container",
@@ -2099,6 +2113,9 @@ let FileSystem = class FileSystem {
     }
     rename(oldPath, newPath) {
         fs_1.default.renameSync(oldPath, newPath);
+    }
+    readDir(path) {
+        return fs_1.default.readdirSync(path);
     }
     readFile(path) {
         return fs_1.default.readFileSync(path).toString();
