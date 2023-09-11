@@ -1,4 +1,5 @@
 import { Inject, Injectable, InjectorService, TokenProvider } from "@tsed/di";
+import { DockerPlatform } from "./docker";
 import { GoDockerPlatform } from "./go-docker";
 import { LaravelPlatform } from "./laravel";
 import { NextPlatform } from "./next";
@@ -10,6 +11,7 @@ import { TsedPlatform } from "./tsed";
 import { VueJsPlatform } from "./vue-js";
 
 const dictionary: Record<PlatformName, TokenProvider<PlatformInterface>> = {
+  [PlatformName.Docker]: DockerPlatform,
   [PlatformName.GoDocker]: GoDockerPlatform,
   [PlatformName.Laravel]: LaravelPlatform,
   [PlatformName.Next]: NextPlatform,

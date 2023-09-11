@@ -1,4 +1,5 @@
 export enum PlatformName {
+  Docker = "docker",
   GoDocker = "go-docker",
   Laravel = "laravel",
   Next = "next",
