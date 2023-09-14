@@ -1377,6 +1377,12 @@ let DockerPlatform = class DockerPlatform {
                     name: "Docker - Build container",
                     actions: [`docker build -t ${context.serviceName} ${context.remote.releaseDir}`]
                 }
+            ],
+            postRelease: [
+                {
+                    name: "Docker - Remove old images",
+                    actions: [`docker image prune -f`]
+                }
             ]
         };
     }
