@@ -1472,6 +1472,12 @@ let GoDockerPlatform = class GoDockerPlatform {
                     name: "GoDocker - Build docker container",
                     actions: [`docker build -t ${context.serviceName} ${context.remote.releaseDir}`]
                 }
+            ],
+            postRelease: [
+                {
+                    name: "GoDocker - Remove old images",
+                    actions: [`docker image prune -f`]
+                }
             ]
         };
     }
