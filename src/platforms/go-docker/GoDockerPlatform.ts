@@ -37,7 +37,7 @@ export class GoDockerPlatform implements PlatformInterface {
       postRelease: [
         {
           name: "GoDocker - Remove old images",
-          actions: [`docker image prune -f`]
+          actions: ["docker image prune -f"]
         }
       ]
     };

@@ -1381,7 +1381,7 @@ let DockerPlatform = class DockerPlatform {
             postRelease: [
                 {
                     name: "Docker - Remove old images",
-                    actions: [`docker image prune -f`]
+                    actions: ["docker image prune -f"]
                 }
             ]
         };
@@ -1476,7 +1476,7 @@ let GoDockerPlatform = class GoDockerPlatform {
             postRelease: [
                 {
                     name: "GoDocker - Remove old images",
-                    actions: [`docker image prune -f`]
+                    actions: ["docker image prune -f"]
                 }
             ]
         };

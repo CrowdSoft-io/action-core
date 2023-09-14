@@ -42,7 +42,7 @@ export class DockerPlatform implements PlatformInterface {
       postRelease: [
         {
           name: "Docker - Remove old images",
-          actions: [`docker image prune -f`]
+          actions: ["docker image prune -f"]
         }
       ]
     };
