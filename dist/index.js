@@ -1705,8 +1705,12 @@ let NextPlatform = class NextPlatform {
         await packageManager.run("build");
         await this.runner.run("rm", "-rf", "node_modules");
         await packageManager.install({ production: true, ignoreScripts: true, frozenLockfile: true });
+        const files = [".next", "app", "node_modules", "public", ".env", "next.config.js", "package.json"];
+        if (this.fileSystem.exists("messages")) {
+            files.push("messages");
+        }
         return {
-            files: [".next", "app", "messages", "node_modules", "public", ".env", "next.config.js", "package.json"]
+            files
         };
     }
 };

@@ -48,6 +48,7 @@ describe("Build e2e", () => {
 
   beforeAll(async () => {
     (FileSystem as any).mockImplementation(() => ({
+      exists: (path: string) => false,
       mkdir: (path: string) => console.log(["[MKDIR]", path, options]),
       writeFile: (path: string, content: string) => console.log(["[WRITE]", path, content])
     }));
