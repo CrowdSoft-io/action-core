@@ -63,8 +63,8 @@ export class NginxInfrastructure implements InfrastructureInterface {
     const stages: Array<ReleaseStage> = [];
 
     const location =
-      config.external?.locations.find((location) => location.service.type === "php") ||
-      config.internal?.locations.find((location) => location.service.type === "php");
+      config.external?.locations?.find((location) => location.service.type === "php") ||
+      config.internal?.locations?.find((location) => location.service.type === "php");
     if (location) {
       const service = location.service as NginxPhpService;
       stages.push({

@@ -737,6 +737,10 @@ exports.NginxConfigRenderer = void 0;
 const di_1 = __nccwpck_require__(9270);
 let NginxConfigRenderer = class NginxConfigRenderer {
     renderServer(context, server, domain, external = false, withWww = false) {
+        const locations = server.locations ?? [];
+        if (server.gateway) {
+            locations.push(...this.createGatewayLocations(server.gateway));
+        }
         const lines = [];
         lines.push("server {");
         lines.push("    client_max_body_size 50M;");
@@ -746,11 +750,11 @@ let NginxConfigRenderer = class NginxConfigRenderer {
         lines.push(`    access_log /var/log/nginx/${domain}.access.log;`);
         lines.push(`    error_log  /var/log/nginx/${domain}.error.log;`);
         lines.push("");
-        for (const location of server.locations) {
+        for (const location of locations) {
             lines.push(...this.renderLocation(context, location));
             lines.push("");
         }
-        const location = server.locations.find((location) => location.service.type === "php");
+        const location = locations.find((location) => location.service.type === "php");
         if (location) {
             lines.push(...this.renderFastCgiPhpLocation(context, location.service));
             lines.push("");
@@ -779,6 +783,30 @@ let NginxConfigRenderer = class NginxConfigRenderer {
             lines.push(...this.renderExternalRedirects(domain, withWww));
         }
         return lines.join("\n");
+    }
+    createGatewayLocations(gateway) {
+        const locations = [];
+        const serviceMap = {};
+        for (const service of gateway.services) {
+            serviceMap[service.name] = service.base_url;
+        }
+        for (const item of gateway.schema) {
+            const baseUrl = serviceMap[item.service];
+            if (!baseUrl) {
+                throw new Error(`Unknown service "${item.service}"`);
+            }
+            locations.push({
+                path: `~ ^${item.from}(.*)$`,
+                basic_auth: item.basic_auth,
+                service: {
+                    type: "proxy",
+                    options: {
+                        pass: `${baseUrl}${item.to}$1`
+                    }
+                }
+            });
+        }
+        return locations;
     }
     renderExternalRedirects(domain, withWww) {
         const lines = [];
@@ -971,8 +999,8 @@ let NginxInfrastructure = class NginxInfrastructure {
     }
     postRelease(config) {
         const stages = [];
-        const location = config.external?.locations.find((location) => location.service.type === "php") ||
-            config.internal?.locations.find((location) => location.service.type === "php");
+        const location = config.external?.locations?.find((location) => location.service.type === "php") ||
+            config.internal?.locations?.find((location) => location.service.type === "php");
         if (location) {
             const service = location.service;
             stages.push({

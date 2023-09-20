@@ -24,9 +24,25 @@ export type NginxLocation = {
   readonly service: NginxService;
 };
 
+export type NginxGatewayServiceName = string;
+
+export type NginxGateway = {
+  readonly services: Array<{
+    readonly name: NginxGatewayServiceName;
+    readonly base_url: string;
+  }>;
+  readonly schema: Array<{
+    readonly from: string;
+    readonly to: string;
+    readonly service: NginxGatewayServiceName;
+    readonly basic_auth?: boolean;
+  }>;
+};
+
 export type NginxServer = {
-  readonly locations: Array<NginxLocation>;
+  readonly locations?: Array<NginxLocation>;
   readonly with_www?: boolean;
+  readonly gateway?: NginxGateway;
 };
 
 export interface NginxConfig {

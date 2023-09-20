@@ -1,10 +1,23 @@
 import { Injectable } from "@tsed/di";
 import { Context } from "../../models";
-import { NginxLocation, NginxPhpService, NginxProxyService, NginxServer, NginxService } from "./NginxConfig";
+import {
+  NginxGateway,
+  NginxGatewayServiceName,
+  NginxLocation,
+  NginxPhpService,
+  NginxProxyService,
+  NginxServer,
+  NginxService
+} from "./NginxConfig";
 
 @Injectable()
 export class NginxConfigRenderer {
   renderServer(context: Context, server: NginxServer, domain: string, external = false, withWww = false): string {
+    const locations: Array<NginxLocation> = server.locations ?? [];
+    if (server.gateway) {
+      locations.push(...this.createGatewayLocations(server.gateway));
+    }
+
     const lines: Array<string> = [];
 
     lines.push("server {");
@@ -19,12 +32,12 @@ export class NginxConfigRenderer {
     lines.push(`    error_log  /var/log/nginx/${domain}.error.log;`);
     lines.push("");
 
-    for (const location of server.locations) {
+    for (const location of locations) {
       lines.push(...this.renderLocation(context, location));
       lines.push("");
     }
 
-    const location = server.locations.find((location) => location.service.type === "php");
+    const location = locations.find((location) => location.service.type === "php");
     if (location) {
       lines.push(...this.renderFastCgiPhpLocation(context, location.service as NginxPhpService));
       lines.push("");
@@ -56,6 +69,35 @@ export class NginxConfigRenderer {
     }
 
     return lines.join("\n");
+  }
+
+  private createGatewayLocations(gateway: NginxGateway): Array<NginxLocation> {
+    const locations: Array<NginxLocation> = [];
+
+    const serviceMap: Record<NginxGatewayServiceName, string> = {};
+    for (const service of gateway.services) {
+      serviceMap[service.name] = service.base_url;
+    }
+
+    for (const item of gateway.schema) {
+      const baseUrl = serviceMap[item.service];
+      if (!baseUrl) {
+        throw new Error(`Unknown service "${item.service}"`);
+      }
+
+      locations.push({
+        path: `~ ^${item.from}(.*)$`,
+        basic_auth: item.basic_auth,
+        service: {
+          type: "proxy",
+          options: {
+            pass: `${baseUrl}${item.to}$1`
+          }
+        }
+      });
+    }
+
+    return locations;
   }
 
   private renderExternalRedirects(domain: string, withWww: boolean): Array<string> {
