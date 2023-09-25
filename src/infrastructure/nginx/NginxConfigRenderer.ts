@@ -91,7 +91,7 @@ export class NginxConfigRenderer {
         service: {
           type: "proxy",
           options: {
-            pass: `${baseUrl}${item.to}$1`
+            pass: `${baseUrl}${item.to}$1$is_args$args`
           }
         }
       });
