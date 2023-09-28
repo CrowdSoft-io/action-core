@@ -39,10 +39,16 @@ export type NginxGateway = {
   }>;
 };
 
+export type NginxUpstream = {
+  readonly name: string;
+  readonly servers: Array<string>;
+};
+
 export type NginxServer = {
   readonly locations?: Array<NginxLocation>;
   readonly with_www?: boolean;
   readonly gateway?: NginxGateway;
+  readonly upstreams?: Array<NginxUpstream>;
 };
 
 export interface NginxConfig {

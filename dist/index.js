@@ -738,10 +738,21 @@ const di_1 = __nccwpck_require__(9270);
 let NginxConfigRenderer = class NginxConfigRenderer {
     renderServer(context, server, domain, external = false, withWww = false) {
         const locations = server.locations ?? [];
+        const upstreams = server.upstreams ?? [];
         if (server.gateway) {
-            locations.push(...this.createGatewayLocations(server.gateway));
+            const config = this.createGatewayConfig(server.gateway);
+            config.locations.length > 0 && locations.push(...config.locations);
+            config.upstreams.length > 0 && upstreams.push(...config.upstreams);
         }
         const lines = [];
+        for (const upstream of upstreams) {
+            lines.push(`upstream ${upstream.name} {`);
+            for (const host of upstream.servers) {
+                lines.push(`    server ${host};`);
+            }
+            lines.push("}");
+            lines.push("");
+        }
         lines.push("server {");
         lines.push("    client_max_body_size 50M;");
         lines.push("");
@@ -784,16 +795,23 @@ let NginxConfigRenderer = class NginxConfigRenderer {
         }
         return lines.join("\n");
     }
-    createGatewayLocations(gateway) {
+    createGatewayConfig(gateway) {
         const locations = [];
+        const upstreams = [];
         const serviceMap = {};
         for (const service of gateway.services) {
             serviceMap[service.name] = service.base_url;
         }
         for (const item of gateway.schema) {
-            const baseUrl = serviceMap[item.service];
+            let baseUrl = serviceMap[item.service];
             if (!baseUrl) {
                 throw new Error(`Unknown service "${item.service}"`);
+            }
+            const url = new URL(baseUrl);
+            if (url.hostname.endsWith(".internal")) {
+                const name = url.hostname.replace(/\.internal$/, ".upstream");
+                upstreams.push({ name, servers: [url.host] });
+                baseUrl = `${url.protocol}//${name}`;
             }
             locations.push({
                 path: `~ ^${item.from}(.*)$`,
@@ -806,7 +824,7 @@ let NginxConfigRenderer = class NginxConfigRenderer {
                 }
             });
         }
-        return locations;
+        return { locations, upstreams };
     }
     renderExternalRedirects(domain, withWww) {
         const lines = [];

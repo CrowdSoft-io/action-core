@@ -7,18 +7,32 @@ import {
   NginxPhpService,
   NginxProxyService,
   NginxServer,
-  NginxService
+  NginxService,
+  NginxUpstream
 } from "./NginxConfig";
 
 @Injectable()
 export class NginxConfigRenderer {
   renderServer(context: Context, server: NginxServer, domain: string, external = false, withWww = false): string {
     const locations: Array<NginxLocation> = server.locations ?? [];
+    const upstreams: Array<NginxUpstream> = server.upstreams ?? [];
+
     if (server.gateway) {
-      locations.push(...this.createGatewayLocations(server.gateway));
+      const config = this.createGatewayConfig(server.gateway);
+      config.locations.length > 0 && locations.push(...config.locations);
+      config.upstreams.length > 0 && upstreams.push(...config.upstreams);
     }
 
     const lines: Array<string> = [];
+
+    for (const upstream of upstreams) {
+      lines.push(`upstream ${upstream.name} {`);
+      for (const host of upstream.servers) {
+        lines.push(`    server ${host};`);
+      }
+      lines.push("}");
+      lines.push("");
+    }
 
     lines.push("server {");
 
@@ -71,8 +85,9 @@ export class NginxConfigRenderer {
     return lines.join("\n");
   }
 
-  private createGatewayLocations(gateway: NginxGateway): Array<NginxLocation> {
+  private createGatewayConfig(gateway: NginxGateway): { locations: Array<NginxLocation>; upstreams: Array<NginxUpstream> } {
     const locations: Array<NginxLocation> = [];
+    const upstreams: Array<NginxUpstream> = [];
 
     const serviceMap: Record<NginxGatewayServiceName, string> = {};
     for (const service of gateway.services) {
@@ -80,9 +95,16 @@ export class NginxConfigRenderer {
     }
 
     for (const item of gateway.schema) {
-      const baseUrl = serviceMap[item.service];
+      let baseUrl = serviceMap[item.service];
       if (!baseUrl) {
         throw new Error(`Unknown service "${item.service}"`);
+      }
+
+      const url = new URL(baseUrl);
+      if (url.hostname.endsWith(".internal")) {
+        const name = url.hostname.replace(/\.internal$/, ".upstream");
+        upstreams.push({ name, servers: [url.host] });
+        baseUrl = `${url.protocol}//${name}`;
       }
 
       locations.push({
@@ -97,7 +119,7 @@ export class NginxConfigRenderer {
       });
     }
 
-    return locations;
+    return { locations, upstreams };
   }
 
   private renderExternalRedirects(domain: string, withWww: boolean): Array<string> {
