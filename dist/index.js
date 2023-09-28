@@ -742,7 +742,11 @@ let NginxConfigRenderer = class NginxConfigRenderer {
         if (server.gateway) {
             const config = this.createGatewayConfig(server.gateway);
             config.locations.length > 0 && locations.push(...config.locations);
-            config.upstreams.length > 0 && upstreams.push(...config.upstreams);
+            for (const upstream of config.upstreams) {
+                if (!upstreams.some(({ name }) => name === upstream.name)) {
+                    upstreams.push(upstream);
+                }
+            }
         }
         const lines = [];
         for (const upstream of upstreams) {
