@@ -114,6 +114,7 @@ export class NginxConfigRenderer {
       locations.push({
         path: `~ ^${item.from}(.*)$`,
         basic_auth: item.basic_auth,
+        cors_header: true,
         service: {
           type: "proxy",
           options: {
@@ -196,6 +197,19 @@ export class NginxConfigRenderer {
     if (location.basic_auth) {
       lines.push('        auth_basic           "Restricted Content";');
       lines.push("        auth_basic_user_file /etc/nginx/.htpasswd;");
+      lines.push("");
+    }
+    if (location.cors_header) {
+      lines.push("        if ($request_method = 'OPTIONS') {");
+      lines.push("            add_header 'Access-Control-Allow-Origin' '*';");
+      lines.push("            add_header 'Access-Control-Allow-Credentials' 'true';");
+      lines.push("            add_header 'Access-Control-Allow-Methods' 'GET, POST, PUT, DELETE, OPTIONS';");
+      lines.push("            add_header 'Access-Control-Allow-Headers' '*';");
+      lines.push("            add_header 'Access-Control-Max-Age' 1728000;");
+      lines.push("            add_header 'Content-Type' 'text/plain charset=UTF-8';");
+      lines.push("            add_header 'Content-Length' 0;");
+      lines.push("            return 204;");
+      lines.push("        }");
       lines.push("");
     }
     lines.push(...this.renderService(context, location.service));
