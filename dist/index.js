@@ -820,7 +820,7 @@ let NginxConfigRenderer = class NginxConfigRenderer {
             locations.push({
                 path: `~ ^${item.from}(.*)$`,
                 basic_auth: item.basic_auth,
-                cors_header: true,
+                cors_headers: true,
                 service: {
                     type: "proxy",
                     options: {
@@ -897,7 +897,7 @@ let NginxConfigRenderer = class NginxConfigRenderer {
             lines.push("        auth_basic_user_file /etc/nginx/.htpasswd;");
             lines.push("");
         }
-        if (location.cors_header) {
+        if (location.cors_headers) {
             lines.push("        if ($request_method = 'OPTIONS') {");
             lines.push("            add_header 'Access-Control-Allow-Origin' '*';");
             lines.push("            add_header 'Access-Control-Allow-Credentials' 'true';");
