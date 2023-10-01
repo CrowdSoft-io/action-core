@@ -740,13 +740,7 @@ let NginxConfigRenderer = class NginxConfigRenderer {
         const locations = server.locations ?? [];
         const upstreams = server.upstreams ?? [];
         if (server.gateway) {
-            const config = this.createGatewayConfig(server.gateway);
-            config.locations.length > 0 && locations.push(...config.locations);
-            for (const upstream of config.upstreams) {
-                if (!upstreams.some(({ name }) => name === upstream.name)) {
-                    upstreams.push(upstream);
-                }
-            }
+            locations.push(...this.createGatewayConfig(server.gateway));
         }
         const lines = [];
         for (const upstream of upstreams) {
@@ -801,21 +795,14 @@ let NginxConfigRenderer = class NginxConfigRenderer {
     }
     createGatewayConfig(gateway) {
         const locations = [];
-        const upstreams = [];
         const serviceMap = {};
         for (const service of gateway.services) {
             serviceMap[service.name] = service.base_url;
         }
         for (const item of gateway.schema) {
-            let baseUrl = serviceMap[item.service];
+            const baseUrl = serviceMap[item.service];
             if (!baseUrl) {
                 throw new Error(`Unknown service "${item.service}"`);
-            }
-            const url = new URL(baseUrl);
-            if (url.hostname.endsWith(".internal")) {
-                const name = url.hostname.replace(/\.internal$/, ".upstream");
-                upstreams.push({ name, servers: [url.host] });
-                baseUrl = `${url.protocol}//${name}`;
             }
             locations.push({
                 path: `~ ^${item.from}(.*)$`,
@@ -829,7 +816,7 @@ let NginxConfigRenderer = class NginxConfigRenderer {
                 }
             });
         }
-        return { locations, upstreams };
+        return locations;
     }
     renderExternalRedirects(domain, withWww) {
         const lines = [];
@@ -950,11 +937,19 @@ let NginxConfigRenderer = class NginxConfigRenderer {
     }
     renderProxyService(service) {
         const lines = [];
+        const url = new URL(service.options.pass);
+        const internal = url.hostname.endsWith(".internal");
+        if (internal) {
+            lines.push("        resolver 127.0.0.53;");
+            lines.push("");
+        }
         lines.push(`        proxy_pass         ${service.options.pass};`);
         lines.push("        proxy_http_version 1.1;");
         lines.push("        proxy_set_header   Upgrade $http_upgrade;");
         lines.push("        proxy_set_header   Connection 'upgrade';");
-        lines.push("        proxy_set_header   Host $host;");
+        if (!internal) {
+            lines.push("        proxy_set_header   Host $host;");
+        }
         lines.push("        proxy_set_header   X-Real-IP $remote_addr;");
         lines.push("        proxy_set_header   X-Forwarded-Proto $scheme;");
         lines.push("        proxy_set_header   X-Forwarded-For $proxy_add_x_forwarded_for;");
