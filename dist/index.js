@@ -885,8 +885,8 @@ let NginxConfigRenderer = class NginxConfigRenderer {
             lines.push("");
         }
         if (location.cors_headers) {
-            lines.push("        add_header 'Access-Control-Allow-Origin' '*';");
             lines.push("        if ($request_method = 'OPTIONS') {");
+            lines.push("            add_header 'Access-Control-Allow-Origin' '*';");
             lines.push("            add_header 'Access-Control-Allow-Credentials' 'true';");
             lines.push("            add_header 'Access-Control-Allow-Methods' 'GET,HEAD,PUT,PATCH,POST,DELETE';");
             lines.push("            add_header 'Access-Control-Allow-Headers' '*';");
@@ -895,6 +895,8 @@ let NginxConfigRenderer = class NginxConfigRenderer {
             lines.push("            add_header 'Content-Length' 0;");
             lines.push("            return 204;");
             lines.push("        }");
+            lines.push("");
+            lines.push("        add_header 'Access-Control-Allow-Origin' '*';");
             lines.push("");
         }
         lines.push(...this.renderService(context, location.service));
