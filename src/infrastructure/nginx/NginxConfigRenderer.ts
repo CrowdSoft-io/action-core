@@ -190,7 +190,7 @@ export class NginxConfigRenderer {
       lines.push("            add_header 'Access-Control-Allow-Origin' '*';");
       lines.push("            add_header 'Access-Control-Allow-Credentials' 'true';");
       lines.push("            add_header 'Access-Control-Allow-Methods' 'GET,HEAD,PUT,PATCH,POST,DELETE';");
-      lines.push("            add_header 'Access-Control-Allow-Headers' '*';");
+      lines.push("            add_header 'Access-Control-Allow-Headers' 'accept,authorization,content-type,origin';");
       lines.push("            add_header 'Access-Control-Max-Age' 1728000;");
       lines.push("            add_header 'Content-Type' 'text/plain charset=UTF-8';");
       lines.push("            add_header 'Content-Length' 0;");
