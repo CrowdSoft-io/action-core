@@ -197,8 +197,8 @@ export class NginxConfigRenderer {
       lines.push("            return 204;");
       lines.push("        }");
       lines.push("");
-      lines.push("        add_header 'Access-Control-Allow-Origin' '*';");
-      lines.push("        add_header 'Access-Control-Expose-Headers' 'x-total-count';");
+      lines.push("        more_set_headers 'Access-Control-Allow-Origin' '*';");
+      lines.push("        more_set_headers 'Access-Control-Expose-Headers' 'x-total-count';");
       lines.push("");
     }
     lines.push(...this.renderService(context, location.service));
