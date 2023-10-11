@@ -256,9 +256,8 @@ export class NginxConfigRenderer {
     const lines: Array<string> = [];
 
     const url = new URL(service.options.pass);
-    const internal = url.hostname.endsWith(".internal");
 
-    if (internal) {
+    if (url.hostname.endsWith(".internal")) {
       lines.push("        resolver 127.0.0.53;");
       lines.push("");
     }
@@ -267,7 +266,7 @@ export class NginxConfigRenderer {
     lines.push("        proxy_http_version 1.1;");
     lines.push("        proxy_set_header   Upgrade $http_upgrade;");
     lines.push("        proxy_set_header   Connection 'upgrade';");
-    if (!internal) {
+    if (url.hostname === "127.0.0.1") {
       lines.push("        proxy_set_header   Host $host;");
     }
     lines.push("        proxy_set_header   X-Real-IP $remote_addr;");
