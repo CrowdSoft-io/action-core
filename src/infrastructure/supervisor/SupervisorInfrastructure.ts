@@ -10,11 +10,11 @@ import { SupervisorConfig } from "./SupervisorConfig";
 export class SupervisorInfrastructure implements InfrastructureInterface {
   constructor(@Inject() private readonly fileSystem: FileSystem, @Inject() private readonly templating: Templating) {}
 
-  async build(context: Context, config: SupervisorConfig): Promise<InfrastructureBuildResult> {
+  async build(context: Context, config: SupervisorConfig, parameters: Record<string, any>): Promise<InfrastructureBuildResult> {
     const localDir = `${context.local.buildDir}/supervisor`;
 
     this.fileSystem.mkdir(localDir);
-    this.fileSystem.writeFile(`${localDir}/${context.repositoryName}.conf`, this.renderConfig(context, config));
+    this.fileSystem.writeFile(`${localDir}/${context.repositoryName}.conf`, this.renderConfig(context, config, parameters));
 
     return {
       preRelease: this.preRelease(context),
@@ -22,17 +22,19 @@ export class SupervisorInfrastructure implements InfrastructureInterface {
     };
   }
 
-  private renderConfig(context: Context, config: SupervisorConfig): string {
+  private renderConfig(context: Context, config: SupervisorConfig, parameters: Record<string, any>): string {
+    const prefix = parameters.supervisor_prefix ?? "";
+
     const lines: Array<string> = [
-      `[group:${context.serviceName}]`,
-      `programs=${config.programs.map((program) => `${context.serviceName}_${program.name}`).join(",")}`,
+      `[group:${prefix}${context.serviceName}]`,
+      `programs=${config.programs.map((program) => `${prefix}${context.serviceName}_${program.name}`).join(",")}`,
       ""
     ];
 
     for (const program of config.programs) {
       const command = this.templating.render(context, program.command);
 
-      lines.push(`[program:${context.serviceName}_${program.name}]`);
+      lines.push(`[program:${prefix}${context.serviceName}_${program.name}]`);
       lines.push(`command=${command}`);
       lines.push(`directory=${context.remote.projectRoot}`);
       lines.push("autostart=true");

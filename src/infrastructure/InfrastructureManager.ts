@@ -12,7 +12,7 @@ export class InfrastructureManager {
   constructor(@Inject() private readonly infrastructureResolver: InfrastructureResolver) {}
 
   async build(context: Context): Promise<InfrastructureBuildResult & { environment: Record<string, string> }> {
-    const { environments, parameters, ...configs } = this.loadConfigs(context.infrastructureDir);
+    const { environments, parameters, ...configs } = this.loadAllConfigs(context);
 
     let environment: Record<string, string> = { SENTRY_RELEASE: context.version };
     if (environments?.base) {
@@ -44,6 +44,27 @@ export class InfrastructureManager {
     }
 
     return result;
+  }
+
+  private loadAllConfigs(context: Context): Record<string, any> {
+    const baseConfigs = this.loadConfigs(context.infrastructureDir);
+    const { environments, parameters, ...branchConfigs } = this.loadConfigs(`${context.infrastructureDir}/${context.branch}`);
+
+    if (environments) {
+      if (!baseConfigs.environments) {
+        baseConfigs.environments = {};
+      }
+      baseConfigs.environments[context.branch] = environments;
+    }
+
+    if (parameters) {
+      if (!baseConfigs.parameters) {
+        baseConfigs.parameters = {};
+      }
+      baseConfigs.parameters[context.branch] = parameters;
+    }
+
+    return { ...baseConfigs, ...branchConfigs };
   }
 
   private loadConfigs(dir: string): Record<string, any> {

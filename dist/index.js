@@ -404,7 +404,7 @@ let InfrastructureManager = class InfrastructureManager {
         this.infrastructureResolver = infrastructureResolver;
     }
     async build(context) {
-        const { environments, parameters, ...configs } = this.loadConfigs(context.infrastructureDir);
+        const { environments, parameters, ...configs } = this.loadAllConfigs(context);
         let environment = { SENTRY_RELEASE: context.version };
         if (environments?.base) {
             environment = { ...environment, ...environments.base };
@@ -431,6 +431,23 @@ let InfrastructureManager = class InfrastructureManager {
             result.postRelease.push(...postRelease);
         }
         return result;
+    }
+    loadAllConfigs(context) {
+        const baseConfigs = this.loadConfigs(context.infrastructureDir);
+        const { environments, parameters, ...branchConfigs } = this.loadConfigs(`${context.infrastructureDir}/${context.branch}`);
+        if (environments) {
+            if (!baseConfigs.environments) {
+                baseConfigs.environments = {};
+            }
+            baseConfigs.environments[context.branch] = environments;
+        }
+        if (parameters) {
+            if (!baseConfigs.parameters) {
+                baseConfigs.parameters = {};
+            }
+            baseConfigs.parameters[context.branch] = parameters;
+        }
+        return { ...baseConfigs, ...branchConfigs };
     }
     loadConfigs(dir) {
         return (0, glob_1.globSync)(`${dir}/*.yaml`)
@@ -1180,24 +1197,25 @@ let SupervisorInfrastructure = class SupervisorInfrastructure {
         this.fileSystem = fileSystem;
         this.templating = templating;
     }
-    async build(context, config) {
+    async build(context, config, parameters) {
         const localDir = `${context.local.buildDir}/supervisor`;
         this.fileSystem.mkdir(localDir);
-        this.fileSystem.writeFile(`${localDir}/${context.repositoryName}.conf`, this.renderConfig(context, config));
+        this.fileSystem.writeFile(`${localDir}/${context.repositoryName}.conf`, this.renderConfig(context, config, parameters));
         return {
             preRelease: this.preRelease(context),
             postRelease: this.postRelease(context)
         };
     }
-    renderConfig(context, config) {
+    renderConfig(context, config, parameters) {
+        const prefix = parameters.supervisor_prefix ?? "";
         const lines = [
-            `[group:${context.serviceName}]`,
-            `programs=${config.programs.map((program) => `${context.serviceName}_${program.name}`).join(",")}`,
+            `[group:${prefix}${context.serviceName}]`,
+            `programs=${config.programs.map((program) => `${prefix}${context.serviceName}_${program.name}`).join(",")}`,
             ""
         ];
         for (const program of config.programs) {
             const command = this.templating.render(context, program.command);
-            lines.push(`[program:${context.serviceName}_${program.name}]`);
+            lines.push(`[program:${prefix}${context.serviceName}_${program.name}]`);
             lines.push(`command=${command}`);
             lines.push(`directory=${context.remote.projectRoot}`);
             lines.push("autostart=true");
