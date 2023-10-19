@@ -1202,8 +1202,8 @@ let SupervisorInfrastructure = class SupervisorInfrastructure {
         this.fileSystem.mkdir(localDir);
         this.fileSystem.writeFile(`${localDir}/${context.repositoryName}.conf`, this.renderConfig(context, config, parameters));
         return {
-            preRelease: this.preRelease(context),
-            postRelease: this.postRelease(context)
+            preRelease: this.preRelease(context, parameters),
+            postRelease: this.postRelease(context, parameters)
         };
     }
     renderConfig(context, config, parameters) {
@@ -1233,13 +1233,14 @@ let SupervisorInfrastructure = class SupervisorInfrastructure {
         }
         return lines.join("\n");
     }
-    preRelease(context) {
+    preRelease(context, parameters) {
         const configSrc = `${context.remote.buildDir}/supervisor/${context.repositoryName}.conf`;
         const configDist = `${context.remote.supervisorDir}/${context.repositoryName}.conf`;
+        const prefix = parameters.supervisor_prefix ?? "";
         return [
             {
                 name: "Supervisor stop",
-                actions: [`sudo supervisorctl stop ${context.serviceName}:* || echo "Not installed"`]
+                actions: [`sudo supervisorctl stop ${prefix}${context.serviceName}:* || echo "Not installed"`]
             },
             {
                 name: "Supervisor config update",
@@ -1254,11 +1255,12 @@ let SupervisorInfrastructure = class SupervisorInfrastructure {
             }
         ];
     }
-    postRelease(context) {
+    postRelease(context, parameters) {
+        const prefix = parameters.supervisor_prefix ?? "";
         return [
             {
                 name: "Supervisor start",
-                actions: [`sudo supervisorctl start ${context.serviceName}:*`]
+                actions: [`sudo supervisorctl start ${prefix}${context.serviceName}:*`]
             }
         ];
     }
