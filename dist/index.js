@@ -1227,7 +1227,7 @@ let SupervisorInfrastructure = class SupervisorInfrastructure {
             lines.push(`stderr_logfile=${context.remote.logsDir}/supervisor.${program.name}.stderr.log`);
             lines.push(`user=${context.remote.user}`);
             lines.push(`group=${context.remote.user}`);
-            lines.push(`process_name=${context.serviceName}_${program.name}_%(process_num)s`);
+            lines.push(`process_name=${prefix}${context.serviceName}_${program.name}_%(process_num)s`);
             lines.push(`numprocs=${program.replicas || 1}`);
             lines.push("");
         }
