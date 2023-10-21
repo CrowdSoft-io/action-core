@@ -12,6 +12,7 @@ export class NginxInfrastructure implements InfrastructureInterface {
 
   async build(context: Context, config: NginxConfig, parameters: Record<string, any>): Promise<InfrastructureBuildResult> {
     const localDir = `${context.local.buildDir}/nginx`;
+    const prefix = parameters.prefix ? `${parameters.prefix}-` : "";
 
     this.fileSystem.mkdir(localDir);
 
@@ -25,7 +26,7 @@ export class NginxInfrastructure implements InfrastructureInterface {
     if (config.internal) {
       this.fileSystem.writeFile(
         `${localDir}/${context.repositoryName}.internal`,
-        this.renderer.renderServer(context, config.internal, `${context.repositoryName}.internal`)
+        this.renderer.renderServer(context, config.internal, `${prefix}${context.repositoryName}.internal`)
       );
     }
 

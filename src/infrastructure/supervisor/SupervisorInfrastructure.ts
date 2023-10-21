@@ -12,19 +12,18 @@ export class SupervisorInfrastructure implements InfrastructureInterface {
 
   async build(context: Context, config: SupervisorConfig, parameters: Record<string, any>): Promise<InfrastructureBuildResult> {
     const localDir = `${context.local.buildDir}/supervisor`;
+    const prefix = parameters.prefix ? `${parameters.prefix}_` : "";
 
     this.fileSystem.mkdir(localDir);
-    this.fileSystem.writeFile(`${localDir}/${context.repositoryName}.conf`, this.renderConfig(context, config, parameters));
+    this.fileSystem.writeFile(`${localDir}/${context.repositoryName}.conf`, this.renderConfig(context, config, prefix));
 
     return {
-      preRelease: this.preRelease(context, parameters),
-      postRelease: this.postRelease(context, parameters)
+      preRelease: this.preRelease(context, prefix),
+      postRelease: this.postRelease(context, prefix)
     };
   }
 
-  private renderConfig(context: Context, config: SupervisorConfig, parameters: Record<string, any>): string {
-    const prefix = parameters.supervisor_prefix ?? "";
-
+  private renderConfig(context: Context, config: SupervisorConfig, prefix: string): string {
     const lines: Array<string> = [
       `[group:${prefix}${context.serviceName}]`,
       `programs=${config.programs.map((program) => `${prefix}${context.serviceName}_${program.name}`).join(",")}`,
@@ -54,10 +53,9 @@ export class SupervisorInfrastructure implements InfrastructureInterface {
     return lines.join("\n");
   }
 
-  private preRelease(context: Context, parameters: Record<string, any>): Array<ReleaseStage> {
+  private preRelease(context: Context, prefix: string): Array<ReleaseStage> {
     const configSrc = `${context.remote.buildDir}/supervisor/${context.repositoryName}.conf`;
     const configDist = `${context.remote.supervisorDir}/${context.repositoryName}.conf`;
-    const prefix = parameters.supervisor_prefix ?? "";
 
     return [
       {
@@ -78,9 +76,7 @@ export class SupervisorInfrastructure implements InfrastructureInterface {
     ];
   }
 
-  private postRelease(context: Context, parameters: Record<string, any>): Array<ReleaseStage> {
-    const prefix = parameters.supervisor_prefix ?? "";
-
+  private postRelease(context: Context, prefix: string): Array<ReleaseStage> {
     return [
       {
         name: "Supervisor start",

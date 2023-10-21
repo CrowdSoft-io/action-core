@@ -1016,12 +1016,13 @@ let NginxInfrastructure = class NginxInfrastructure {
     }
     async build(context, config, parameters) {
         const localDir = `${context.local.buildDir}/nginx`;
+        const prefix = parameters.prefix ? `${parameters.prefix}-` : "";
         this.fileSystem.mkdir(localDir);
         if (config.external) {
             this.fileSystem.writeFile(`${localDir}/${context.repositoryName}.external`, this.renderer.renderServer(context, config.external, parameters.domain, true, !!config.external.with_www));
         }
         if (config.internal) {
-            this.fileSystem.writeFile(`${localDir}/${context.repositoryName}.internal`, this.renderer.renderServer(context, config.internal, `${context.repositoryName}.internal`));
+            this.fileSystem.writeFile(`${localDir}/${context.repositoryName}.internal`, this.renderer.renderServer(context, config.internal, `${prefix}${context.repositoryName}.internal`));
         }
         return {
             preRelease: this.preRelease(context, config),
@@ -1199,15 +1200,15 @@ let SupervisorInfrastructure = class SupervisorInfrastructure {
     }
     async build(context, config, parameters) {
         const localDir = `${context.local.buildDir}/supervisor`;
+        const prefix = parameters.prefix ? `${parameters.prefix}_` : "";
         this.fileSystem.mkdir(localDir);
-        this.fileSystem.writeFile(`${localDir}/${context.repositoryName}.conf`, this.renderConfig(context, config, parameters));
+        this.fileSystem.writeFile(`${localDir}/${context.repositoryName}.conf`, this.renderConfig(context, config, prefix));
         return {
-            preRelease: this.preRelease(context, parameters),
-            postRelease: this.postRelease(context, parameters)
+            preRelease: this.preRelease(context, prefix),
+            postRelease: this.postRelease(context, prefix)
         };
     }
-    renderConfig(context, config, parameters) {
-        const prefix = parameters.supervisor_prefix ?? "";
+    renderConfig(context, config, prefix) {
         const lines = [
             `[group:${prefix}${context.serviceName}]`,
             `programs=${config.programs.map((program) => `${prefix}${context.serviceName}_${program.name}`).join(",")}`,
@@ -1233,10 +1234,9 @@ let SupervisorInfrastructure = class SupervisorInfrastructure {
         }
         return lines.join("\n");
     }
-    preRelease(context, parameters) {
+    preRelease(context, prefix) {
         const configSrc = `${context.remote.buildDir}/supervisor/${context.repositoryName}.conf`;
         const configDist = `${context.remote.supervisorDir}/${context.repositoryName}.conf`;
-        const prefix = parameters.supervisor_prefix ?? "";
         return [
             {
                 name: "Supervisor stop",
@@ -1255,8 +1255,7 @@ let SupervisorInfrastructure = class SupervisorInfrastructure {
             }
         ];
     }
-    postRelease(context, parameters) {
-        const prefix = parameters.supervisor_prefix ?? "";
+    postRelease(context, prefix) {
         return [
             {
                 name: "Supervisor start",
