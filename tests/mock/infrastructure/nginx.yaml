@@ -1,6 +1,5 @@
 nginx:
   external:
-    strict: true
     locations:
       - path: /
         basic_auth: true
