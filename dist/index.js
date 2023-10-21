@@ -795,7 +795,7 @@ let NginxConfigRenderer = class NginxConfigRenderer {
             lines.push("    listen 443 ssl;");
             lines.push("    listen [::]:443 ssl;");
         }
-        else if (context.branch === "main") {
+        else if (context.branch === "main" && server.strict !== false) {
             lines.push("    listen 127.0.0.1:80;");
         }
         else {
