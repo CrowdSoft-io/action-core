@@ -37,6 +37,9 @@ export class TsedPlatform implements PlatformInterface {
     if (this.fileSystem.exists("spec")) {
       files.push("spec");
     }
+    if (this.fileSystem.exists("templates")) {
+      files.push("templates");
+    }
     if (this.fileSystem.exists("views")) {
       files.push("views");
     }
