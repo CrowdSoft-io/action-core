@@ -43,6 +43,9 @@ export class InfrastructureManager {
       result.postRelease.push(...postRelease);
     }
 
+    result.preRelease.sort((item1, item2) => (item2.priority ?? 0) - (item1.priority ?? 0));
+    result.postRelease.sort((item1, item2) => (item2.priority ?? 0) - (item1.priority ?? 0));
+
     return result;
   }
 

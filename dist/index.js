@@ -430,6 +430,8 @@ let InfrastructureManager = class InfrastructureManager {
             result.preRelease.push(...preRelease);
             result.postRelease.push(...postRelease);
         }
+        result.preRelease.sort((item1, item2) => (item2.priority ?? 0) - (item1.priority ?? 0));
+        result.postRelease.sort((item1, item2) => (item2.priority ?? 0) - (item1.priority ?? 0));
         return result;
     }
     loadAllConfigs(context) {
@@ -1201,13 +1203,15 @@ let ScriptsInfrastructure = class ScriptsInfrastructure {
     }
     async build(context, config) {
         return {
-            preRelease: config.pre_release?.map(({ name, run }) => ({
+            preRelease: config.pre_release?.map(({ name, run }, index) => ({
                 name: `Pre-release scripts - ${name}`,
-                actions: [this.templating.render(context, run)]
+                actions: [this.templating.render(context, run)],
+                priority: 199 - index
             })) ?? [],
-            postRelease: config.post_release?.map(({ name, run }) => ({
+            postRelease: config.post_release?.map(({ name, run }, index) => ({
                 name: `Post-release scripts - ${name}`,
-                actions: [this.templating.render(context, run)]
+                actions: [this.templating.render(context, run)],
+                priority: 199 - index
             })) ?? []
         };
     }

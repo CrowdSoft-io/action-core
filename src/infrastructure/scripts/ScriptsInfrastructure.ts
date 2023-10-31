@@ -12,14 +12,16 @@ export class ScriptsInfrastructure implements InfrastructureInterface {
   async build(context: Context, config: ScriptsConfig): Promise<InfrastructureBuildResult> {
     return {
       preRelease:
-        config.pre_release?.map(({ name, run }) => ({
+        config.pre_release?.map(({ name, run }, index) => ({
           name: `Pre-release scripts - ${name}`,
-          actions: [this.templating.render(context, run)]
+          actions: [this.templating.render(context, run)],
+          priority: 199 - index
         })) ?? [],
       postRelease:
-        config.post_release?.map(({ name, run }) => ({
+        config.post_release?.map(({ name, run }, index) => ({
           name: `Post-release scripts - ${name}`,
-          actions: [this.templating.render(context, run)]
+          actions: [this.templating.render(context, run)],
+          priority: 199 - index
         })) ?? []
     };
   }
