@@ -478,6 +478,7 @@ var InfrastructureName;
     InfrastructureName["FileSystem"] = "file_system";
     InfrastructureName["Nginx"] = "nginx";
     InfrastructureName["Rabbitmq"] = "rabbitmq";
+    InfrastructureName["Scripts"] = "scripts";
     InfrastructureName["Supervisor"] = "supervisor";
 })(InfrastructureName = exports.InfrastructureName || (exports.InfrastructureName = {}));
 
@@ -509,12 +510,14 @@ const file_system_1 = __nccwpck_require__(63718);
 const InfrastructureName_1 = __nccwpck_require__(75074);
 const nginx_1 = __nccwpck_require__(29723);
 const rabbitmq_1 = __nccwpck_require__(26870);
+const scripts_1 = __nccwpck_require__(13841);
 const supervisor_1 = __nccwpck_require__(21882);
 const dictionary = {
     [InfrastructureName_1.InfrastructureName.Cron]: cron_1.CronInfrastructure,
     [InfrastructureName_1.InfrastructureName.FileSystem]: file_system_1.FileSystemInfrastructure,
     [InfrastructureName_1.InfrastructureName.Nginx]: nginx_1.NginxInfrastructure,
     [InfrastructureName_1.InfrastructureName.Rabbitmq]: rabbitmq_1.RabbitmqInfrastructure,
+    [InfrastructureName_1.InfrastructureName.Scripts]: scripts_1.ScriptsInfrastructure,
     [InfrastructureName_1.InfrastructureName.Supervisor]: supervisor_1.SupervisorInfrastructure
 };
 let InfrastructureResolver = class InfrastructureResolver {
@@ -718,6 +721,7 @@ __exportStar(__nccwpck_require__(75474), exports);
 __exportStar(__nccwpck_require__(63718), exports);
 __exportStar(__nccwpck_require__(29723), exports);
 __exportStar(__nccwpck_require__(26870), exports);
+__exportStar(__nccwpck_require__(13841), exports);
 __exportStar(__nccwpck_require__(21882), exports);
 __exportStar(__nccwpck_require__(18899), exports);
 __exportStar(__nccwpck_require__(82881), exports);
@@ -1155,6 +1159,91 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 __exportStar(__nccwpck_require__(56047), exports);
+
+
+/***/ }),
+
+/***/ 16476:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+
+
+/***/ }),
+
+/***/ 90819:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.ScriptsInfrastructure = void 0;
+const di_1 = __nccwpck_require__(9270);
+const templating_1 = __nccwpck_require__(49547);
+let ScriptsInfrastructure = class ScriptsInfrastructure {
+    templating;
+    constructor(templating) {
+        this.templating = templating;
+    }
+    async build(context, config) {
+        return {
+            preRelease: config.pre_release?.map(({ name, run }) => ({
+                name: `Pre-release scripts - ${name}`,
+                actions: [this.templating.render(context, run)]
+            })) ?? [],
+            postRelease: config.post_release?.map(({ name, run }) => ({
+                name: `Post-release scripts - ${name}`,
+                actions: [this.templating.render(context, run)]
+            })) ?? []
+        };
+    }
+};
+ScriptsInfrastructure = __decorate([
+    (0, di_1.Injectable)(),
+    __param(0, (0, di_1.Inject)()),
+    __metadata("design:paramtypes", [templating_1.Templating])
+], ScriptsInfrastructure);
+exports.ScriptsInfrastructure = ScriptsInfrastructure;
+
+
+/***/ }),
+
+/***/ 13841:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __exportStar = (this && this.__exportStar) || function(m, exports) {
+    for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+__exportStar(__nccwpck_require__(16476), exports);
+__exportStar(__nccwpck_require__(90819), exports);
 
 
 /***/ }),

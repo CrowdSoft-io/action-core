@@ -3,5 +3,6 @@ export enum InfrastructureName {
   FileSystem = "file_system",
   Nginx = "nginx",
   Rabbitmq = "rabbitmq",
+  Scripts = "scripts",
   Supervisor = "supervisor"
 }

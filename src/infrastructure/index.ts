@@ -2,6 +2,7 @@ export * from "./cron";
 export * from "./file-system";
 export * from "./nginx";
 export * from "./rabbitmq";
+export * from "./scripts";
 export * from "./supervisor";
 
 export * from "./InfrastructureBuildResult";

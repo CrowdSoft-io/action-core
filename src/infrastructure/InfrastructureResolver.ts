@@ -5,6 +5,7 @@ import { InfrastructureInterface } from "./InfrastructureInterface";
 import { InfrastructureName } from "./InfrastructureName";
 import { NginxInfrastructure } from "./nginx";
 import { RabbitmqInfrastructure } from "./rabbitmq";
+import { ScriptsInfrastructure } from "./scripts";
 import { SupervisorInfrastructure } from "./supervisor";
 
 const dictionary: Record<InfrastructureName, TokenProvider<InfrastructureInterface>> = {
@@ -12,6 +13,7 @@ const dictionary: Record<InfrastructureName, TokenProvider<InfrastructureInterfa
   [InfrastructureName.FileSystem]: FileSystemInfrastructure,
   [InfrastructureName.Nginx]: NginxInfrastructure,
   [InfrastructureName.Rabbitmq]: RabbitmqInfrastructure,
+  [InfrastructureName.Scripts]: ScriptsInfrastructure,
   [InfrastructureName.Supervisor]: SupervisorInfrastructure
 };
 
