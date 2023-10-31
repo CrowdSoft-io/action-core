@@ -1436,7 +1436,7 @@ let DockerPlatform = class DockerPlatform {
         for (const name in environment) {
             lines.push(`${name}=${environment[name]}`);
         }
-        this.fileSystem.writeFile(".env", lines.join("\n"));
+        this.fileSystem.writeFile(".env", lines.join("\n"), true);
         const files = this.fileSystem.readDir(".");
         if (this.fileSystem.exists(".dockerignore")) {
             const exclude = this.fileSystem
