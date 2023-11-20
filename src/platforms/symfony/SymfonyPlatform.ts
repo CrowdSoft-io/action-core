@@ -19,6 +19,9 @@ export class SymfonyPlatform implements PlatformInterface {
     if (this.fileSystem.exists("migrations")) {
       files.push("migrations");
     }
+    if (this.fileSystem.exists("templates")) {
+      files.push("templates");
+    }
 
     return {
       files,

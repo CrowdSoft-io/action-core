@@ -2043,6 +2043,9 @@ let SymfonyPlatform = class SymfonyPlatform {
         if (this.fileSystem.exists("migrations")) {
             files.push("migrations");
         }
+        if (this.fileSystem.exists("templates")) {
+            files.push("templates");
+        }
         return {
             files,
             postBuild: {
