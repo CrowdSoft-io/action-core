@@ -14,7 +14,7 @@ export class GoDockerPlatform implements PlatformInterface {
     for (const name in environment) {
       lines.push(`${name}=${environment[name]}`);
     }
-    this.fileSystem.writeFile(".env", lines.join("\n"));
+    this.fileSystem.writeFile(".env", lines.join("\n") + "\n");
 
     await this.runner.run("git", "submodule", "init");
     await this.runner.run("git", "submodule", "update");

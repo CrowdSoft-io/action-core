@@ -14,7 +14,7 @@ export class LaravelPlatform implements PlatformInterface {
       lines.push(`${name}=${environment[name] ?? ""}`);
     }
     lines.sort();
-    this.fileSystem.writeFile(".env", lines.join("\n"));
+    this.fileSystem.writeFile(".env", lines.join("\n") + "\n");
 
     const files: Array<string> = [
       "app",

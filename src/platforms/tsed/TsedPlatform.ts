@@ -23,7 +23,7 @@ export class TsedPlatform implements PlatformInterface {
     for (const name in environment) {
       lines.push(`${name}='${environment[name]}'`);
     }
-    this.fileSystem.writeFile(".env.local", lines.join("\n"));
+    this.fileSystem.writeFile(".env.local", lines.join("\n") + "\n");
 
     await packageManager.install({ frozenLockfile: true });
     await packageManager.run("build");

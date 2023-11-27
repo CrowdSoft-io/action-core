@@ -13,7 +13,7 @@ export class SymfonyPlatform implements PlatformInterface {
     for (const name in environment) {
       lines.push(`${name}='${environment[name]}'`);
     }
-    this.fileSystem.writeFile(".env", lines.join("\n"), true);
+    this.fileSystem.writeFile(".env", lines.join("\n") + "\n", true);
 
     const files = ["bin", "config", "public", "src", ".env", "composer.json"];
     if (this.fileSystem.exists("migrations")) {

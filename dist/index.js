@@ -1529,7 +1529,7 @@ let DockerPlatform = class DockerPlatform {
         for (const name in environment) {
             lines.push(`${name}=${environment[name]}`);
         }
-        this.fileSystem.writeFile(".env", lines.join("\n"), true);
+        this.fileSystem.writeFile(".env", lines.join("\n") + "\n", true);
         const files = this.fileSystem.readDir(".");
         if (this.fileSystem.exists(".dockerignore")) {
             const exclude = this.fileSystem
@@ -1630,7 +1630,7 @@ let GoDockerPlatform = class GoDockerPlatform {
         for (const name in environment) {
             lines.push(`${name}=${environment[name]}`);
         }
-        this.fileSystem.writeFile(".env", lines.join("\n"));
+        this.fileSystem.writeFile(".env", lines.join("\n") + "\n");
         await this.runner.run("git", "submodule", "init");
         await this.runner.run("git", "submodule", "update");
         const gitmodules = this.fileSystem.readFile(".gitmodules");
@@ -1759,7 +1759,7 @@ let LaravelPlatform = class LaravelPlatform {
             lines.push(`${name}=${environment[name] ?? ""}`);
         }
         lines.sort();
-        this.fileSystem.writeFile(".env", lines.join("\n"));
+        this.fileSystem.writeFile(".env", lines.join("\n") + "\n");
         const files = [
             "app",
             "bootstrap",
@@ -1874,7 +1874,7 @@ let NextPlatform = class NextPlatform {
             process.env[name] = environment[name];
             lines.push(`${name}='${environment[name]}'`);
         }
-        this.fileSystem.writeFile(".env", lines.join("\n"), true);
+        this.fileSystem.writeFile(".env", lines.join("\n") + "\n", true);
         await packageManager.install({ frozenLockfile: true });
         await packageManager.run("build");
         await this.runner.run("rm", "-rf", "node_modules");
@@ -2041,7 +2041,7 @@ let SymfonyPlatform = class SymfonyPlatform {
         for (const name in environment) {
             lines.push(`${name}='${environment[name]}'`);
         }
-        this.fileSystem.writeFile(".env", lines.join("\n"), true);
+        this.fileSystem.writeFile(".env", lines.join("\n") + "\n", true);
         const files = ["bin", "config", "public", "src", ".env", "composer.json"];
         if (this.fileSystem.exists("migrations")) {
             files.push("migrations");
@@ -2141,7 +2141,7 @@ let TsedPlatform = class TsedPlatform {
         for (const name in environment) {
             lines.push(`${name}='${environment[name]}'`);
         }
-        this.fileSystem.writeFile(".env.local", lines.join("\n"));
+        this.fileSystem.writeFile(".env.local", lines.join("\n") + "\n");
         await packageManager.install({ frozenLockfile: true });
         await packageManager.run("build");
         await this.runner.run("rm", "-rf", "node_modules");
@@ -2240,7 +2240,7 @@ let VueJsPlatform = class VueJsPlatform {
             process.env[name] = environment[name];
             lines.push(`${name}='${environment[name]}'`);
         }
-        this.fileSystem.writeFile(".env", lines.join("\n"), true);
+        this.fileSystem.writeFile(".env", lines.join("\n") + "\n", true);
         await packageManager.install({ frozenLockfile: true });
         await packageManager.run("build");
         return {

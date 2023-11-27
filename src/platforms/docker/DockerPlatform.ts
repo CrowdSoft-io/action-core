@@ -13,7 +13,7 @@ export class DockerPlatform implements PlatformInterface {
     for (const name in environment) {
       lines.push(`${name}=${environment[name]}`);
     }
-    this.fileSystem.writeFile(".env", lines.join("\n"), true);
+    this.fileSystem.writeFile(".env", lines.join("\n") + "\n", true);
 
     const files: Array<string> = this.fileSystem.readDir(".");
 
