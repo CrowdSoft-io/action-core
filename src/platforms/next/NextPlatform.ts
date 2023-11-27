@@ -31,7 +31,10 @@ export class NextPlatform implements PlatformInterface {
     await this.runner.run("rm", "-rf", "node_modules");
     await packageManager.install({ production: true, ignoreScripts: true, frozenLockfile: true });
 
-    const files: Array<string> = [".next", "app", "node_modules", "public", ".env", "next.config.js", "package.json"];
+    const files: Array<string> = [".next", "node_modules", "public", ".env", "next.config.js", "package.json"];
+    if (this.fileSystem.exists("app")) {
+      files.push("app");
+    }
     if (this.fileSystem.exists("messages")) {
       files.push("messages");
     }
