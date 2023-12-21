@@ -1967,7 +1967,9 @@ let ReactPlatform = class ReactPlatform {
         }
         await packageManager.install({ frozenLockfile: true });
         await packageManager.run("build");
-        this.fileSystem.rename("build", "dist");
+        if (this.fileSystem.exists("build")) {
+            this.fileSystem.rename("build", "dist");
+        }
         return {
             files: ["dist"]
         };
