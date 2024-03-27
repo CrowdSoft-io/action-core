@@ -32,6 +32,10 @@ export type NginxGateway = {
     readonly name: NginxGatewayServiceName;
     readonly base_url: string;
   }>;
+  readonly auth?: {
+    readonly service: NginxGatewayServiceName;
+    readonly path: string;
+  };
   readonly schema: Array<{
     readonly from: string;
     readonly to: string;

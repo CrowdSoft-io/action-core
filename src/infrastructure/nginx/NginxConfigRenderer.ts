@@ -16,9 +16,12 @@ export class NginxConfigRenderer {
   renderServer(context: Context, server: NginxServer, domain: string, external = false, withWww = false): string {
     const locations: Array<NginxLocation> = server.locations ?? [];
     const upstreams: Array<NginxUpstream> = server.upstreams ?? [];
+    const internal: Array<string> = [];
 
     if (server.gateway) {
-      locations.push(...this.createGatewayConfig(server.gateway));
+      const gateway = this.createGatewayConfig(server.gateway);
+      locations.push(...gateway.locations);
+      internal.push(...gateway.internal);
     }
 
     const lines: Array<string> = [];
@@ -55,6 +58,8 @@ export class NginxConfigRenderer {
       lines.push("");
     }
 
+    lines.push(...internal);
+
     if (external) {
       lines.push(`    ssl_certificate         /etc/letsencrypt/live/${domain}/fullchain.pem;`);
       lines.push(`    ssl_certificate_key     /etc/letsencrypt/live/${domain}/privkey.pem;`);
@@ -83,8 +88,15 @@ export class NginxConfigRenderer {
     return lines.join("\n");
   }
 
-  private createGatewayConfig(gateway: NginxGateway): Array<NginxLocation> {
+  private createGatewayConfig(gateway: NginxGateway): { locations: Array<NginxLocation>; internal: Array<string> } {
+    const errors: Record<number, string> = {
+      401: "Unauthorized",
+      403: "Forbidden",
+      500: "Internal server error"
+    };
+
     const locations: Array<NginxLocation> = [];
+    const internal: Array<string> = [];
 
     const serviceMap: Record<NginxGatewayServiceName, string> = {};
     for (const service of gateway.services) {
@@ -110,7 +122,49 @@ export class NginxConfigRenderer {
       });
     }
 
-    return locations;
+    if (gateway.auth) {
+      const authBaseUrl = serviceMap[gateway.auth.service];
+      if (!authBaseUrl) {
+        throw new Error(`Unknown auth service "${gateway.auth.service}"`);
+      }
+
+      for (const code in errors) {
+        internal.push(`    error_page ${code} /api/internal/error/${code};`);
+      }
+      internal.push("");
+
+      internal.push("    location = /api/internal/auth {");
+      internal.push("        internal;");
+      internal.push("");
+      internal.push(`        proxy_pass              ${authBaseUrl}/${gateway.auth.path};`);
+      internal.push("        proxy_pass_request_body off;");
+      internal.push("        proxy_set_header        Content-Length '';");
+      internal.push("        proxy_set_header        X-Original-URI $request_uri;");
+      internal.push("    }");
+      internal.push("");
+
+      for (const code in errors) {
+        internal.push(`    location = /api/internal/error/${code} {`);
+        internal.push("        internal;");
+        internal.push("");
+
+        if (["401", "403"].includes(code)) {
+          internal.push("        set $message $sent_http_www_authenticate;");
+          internal.push("        if ($message = '') {");
+          internal.push(`            set $message '${errors[code]}';`);
+          internal.push("        }");
+          internal.push("");
+        }
+
+        internal.push("        default_type application/json;");
+        internal.push("");
+        internal.push(`        return ${code} '{"code":${code},"message":"$message"}';`);
+        internal.push("    }");
+        internal.push("");
+      }
+    }
+
+    return { locations, internal };
   }
 
   private renderExternalRedirects(domain: string, withWww: boolean): Array<string> {

@@ -46,7 +46,7 @@ let Builder = class Builder {
         const infrastructureResult = await this.infrastructureManager.build(context);
         const platform = this.platformResolver.resolve(options.platform);
         const platformResult = await platform.build(context, infrastructureResult.environment);
-        await this.runner.run("tar", "-cf", `${context.local.buildDir}/release.tar`, ...platformResult.files);
+        await this.runner.run("tar", "-cf", `${context.local.buildDir}/release.tar`, ...platformResult.files, ...infrastructureResult.files);
         await new services_1.InstallScriptBuilder(context, this.fileSystem)
             .createDirectories()
             .extractReleaseArchive()
@@ -422,7 +422,8 @@ let InfrastructureManager = class InfrastructureManager {
         const result = {
             environment,
             preRelease: [],
-            postRelease: []
+            postRelease: [],
+            files: configs.file_system?.include_paths ?? []
         };
         for (const name in configs) {
             const service = this.infrastructureResolver.resolve(name);
@@ -762,8 +763,11 @@ let NginxConfigRenderer = class NginxConfigRenderer {
     renderServer(context, server, domain, external = false, withWww = false) {
         const locations = server.locations ?? [];
         const upstreams = server.upstreams ?? [];
+        const internal = [];
         if (server.gateway) {
-            locations.push(...this.createGatewayConfig(server.gateway));
+            const gateway = this.createGatewayConfig(server.gateway);
+            locations.push(...gateway.locations);
+            internal.push(...gateway.internal);
         }
         const lines = [];
         for (const upstream of upstreams) {
@@ -791,6 +795,7 @@ let NginxConfigRenderer = class NginxConfigRenderer {
             lines.push(...this.renderFastCgiPhpLocation(context, location.service));
             lines.push("");
         }
+        lines.push(...internal);
         if (external) {
             lines.push(`    ssl_certificate         /etc/letsencrypt/live/${domain}/fullchain.pem;`);
             lines.push(`    ssl_certificate_key     /etc/letsencrypt/live/${domain}/privkey.pem;`);
@@ -817,7 +822,13 @@ let NginxConfigRenderer = class NginxConfigRenderer {
         return lines.join("\n");
     }
     createGatewayConfig(gateway) {
+        const errors = {
+            401: "Unauthorized",
+            403: "Forbidden",
+            500: "Internal server error"
+        };
         const locations = [];
+        const internal = [];
         const serviceMap = {};
         for (const service of gateway.services) {
             serviceMap[service.name] = service.base_url;
@@ -839,7 +850,43 @@ let NginxConfigRenderer = class NginxConfigRenderer {
                 }
             });
         }
-        return locations;
+        if (gateway.auth) {
+            const authBaseUrl = serviceMap[gateway.auth.service];
+            if (!authBaseUrl) {
+                throw new Error(`Unknown auth service "${gateway.auth.service}"`);
+            }
+            for (const code in errors) {
+                internal.push(`    error_page ${code} /api/internal/error/${code};`);
+            }
+            internal.push("");
+            internal.push("    location = /api/internal/auth {");
+            internal.push("        internal;");
+            internal.push("");
+            internal.push(`        proxy_pass              ${authBaseUrl}/${gateway.auth.path};`);
+            internal.push("        proxy_pass_request_body off;");
+            internal.push("        proxy_set_header        Content-Length '';");
+            internal.push("        proxy_set_header        X-Original-URI $request_uri;");
+            internal.push("    }");
+            internal.push("");
+            for (const code in errors) {
+                internal.push(`    location = /api/internal/error/${code} {`);
+                internal.push("        internal;");
+                internal.push("");
+                if (["401", "403"].includes(code)) {
+                    internal.push("        set $message $sent_http_www_authenticate;");
+                    internal.push("        if ($message = '') {");
+                    internal.push(`            set $message '${errors[code]}';`);
+                    internal.push("        }");
+                    internal.push("");
+                }
+                internal.push("        default_type application/json;");
+                internal.push("");
+                internal.push(`        return ${code} '{"code":${code},"message":"$message"}';`);
+                internal.push("    }");
+                internal.push("");
+            }
+        }
+        return { locations, internal };
     }
     renderExternalRedirects(domain, withWww) {
         const lines = [];

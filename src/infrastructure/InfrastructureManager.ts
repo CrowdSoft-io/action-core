@@ -11,7 +11,7 @@ import { InfrastructureResolver } from "./InfrastructureResolver";
 export class InfrastructureManager {
   constructor(@Inject() private readonly infrastructureResolver: InfrastructureResolver) {}
 
-  async build(context: Context): Promise<InfrastructureBuildResult & { environment: Record<string, string> }> {
+  async build(context: Context): Promise<InfrastructureBuildResult & { environment: Record<string, string>; files: Array<string> }> {
     const { environments, parameters, ...configs } = this.loadAllConfigs(context);
 
     let environment: Record<string, string> = { SENTRY_RELEASE: context.version };
@@ -30,10 +30,11 @@ export class InfrastructureManager {
       mergedParameters = { ...mergedParameters, ...parameters[context.branch] };
     }
 
-    const result: InfrastructureBuildResult & { environment: Record<string, string> } = {
+    const result: InfrastructureBuildResult & { environment: Record<string, string>; files: Array<string> } = {
       environment,
       preRelease: [],
-      postRelease: []
+      postRelease: [],
+      files: configs.file_system?.include_paths ?? []
     };
 
     for (const name in configs) {
