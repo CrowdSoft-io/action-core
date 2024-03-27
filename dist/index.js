@@ -862,7 +862,7 @@ let NginxConfigRenderer = class NginxConfigRenderer {
             internal.push("    location = /api/internal/auth {");
             internal.push("        internal;");
             internal.push("");
-            internal.push(`        proxy_pass              ${authBaseUrl}/${gateway.auth.path};`);
+            internal.push(`        proxy_pass              ${authBaseUrl}${gateway.auth.path};`);
             internal.push("        proxy_pass_request_body off;");
             internal.push("        proxy_set_header        Content-Length '';");
             internal.push("        proxy_set_header        X-Original-URI $request_uri;");
