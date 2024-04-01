@@ -22,6 +22,7 @@ export class InstallScriptBuilder {
   createDirectories(): InstallScriptBuilder {
     const paths: Array<string> = [
       this.context.remote.logsDir,
+      this.context.remote.cronDir,
       this.context.remote.nginxDir,
       this.context.remote.releaseDir,
       this.context.remote.supervisorDir,

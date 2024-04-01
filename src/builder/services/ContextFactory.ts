@@ -42,6 +42,7 @@ export class ContextFactory {
         logsDir: `${remoteHomeDir}/logs/${repository}`,
         buildDir: remoteBuildDir,
         buildBinDir: `${remoteBuildDir}/bin`,
+        cronDir: `${remoteHomeDir}/cron`,
         nginxDir: `${remoteHomeDir}/nginx`,
         supervisorDir: `${remoteHomeDir}/supervisor`,
         maxReleases: options.maxReleases

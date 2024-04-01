@@ -1,6 +1,6 @@
 {
   "name": "action-core",
-  "version": "1.13.0",
+  "version": "1.14.0",
   "description": "",
   "main": "lib/index.js",
   "scripts": {
@@ -18,6 +18,7 @@
     "@actions/core": "^1.10.0",
     "@actions/github": "^5.1.1",
     "@tsed/di": "^7.28.0",
+    "cron-parser": "^4.9.0",
     "glob": "^10.2.3",
     "yaml": "^2.2.2"
   },
