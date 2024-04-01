@@ -13,11 +13,12 @@ export class CronInfrastructure implements InfrastructureInterface {
 
   async build(context: Context, config: CronConfig): Promise<InfrastructureBuildResult> {
     const localDir = `${context.local.buildDir}/cron`;
+    const localConfig = `${localDir}/${context.repositoryName}.crontab`;
     const configSrc = `${context.remote.buildDir}/cron/${context.repositoryName}.crontab`;
     const configDist = `${context.remote.cronDir}/${context.repositoryName}.crontab`;
 
     this.fileSystem.mkdir(localDir);
-    this.fileSystem.writeFile(configSrc, this.renderConfig(context, config));
+    this.fileSystem.writeFile(localConfig, this.renderConfig(context, config));
 
     return {
       preRelease: [
