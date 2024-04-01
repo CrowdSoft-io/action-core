@@ -609,7 +609,7 @@ let CronInfrastructure = class CronInfrastructure {
                 {
                     name: "Update crontab",
                     actions: [
-                        `cat > ${context.remote.cronDir}/*.crontab /tmp/crontab-config`,
+                        `cat ${context.remote.cronDir}/*.crontab > /tmp/crontab-config`,
                         `crontab /tmp/crontab-config`,
                         `rm /tmp/crontab-config`
                     ]
