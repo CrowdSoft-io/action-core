@@ -57,7 +57,7 @@ export class CronInfrastructure implements InfrastructureInterface {
       const stdoutLog = `${context.remote.logsDir}/cron.${item.name}.stdout.log`;
       const stderrLog = `${context.remote.logsDir}/cron.${item.name}.stderr.log`;
 
-      lines.push(`${item.expression} ${command} 1> ${stdoutLog} 2> ${stderrLog}`);
+      lines.push(`${item.expression} ${command} 1>> ${stdoutLog} 2>> ${stderrLog}`);
     }
 
     lines.push(`# END ${context.serviceName}`);
