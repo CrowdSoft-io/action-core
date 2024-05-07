@@ -53,8 +53,8 @@ let Builder = class Builder {
             .addStages(...infrastructureResult.preRelease)
             .addStages(...(platformResult.preRelease ?? []))
             .switchReleases()
-            .addStages(...(platformResult.postRelease ?? []))
             .addStages(...infrastructureResult.postRelease)
+            .addStages(...(platformResult.postRelease ?? []))
             .removeOldReleases()
             .removeBuildArtifacts()
             .build();
