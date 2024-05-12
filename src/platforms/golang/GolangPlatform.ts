@@ -2,7 +2,6 @@ import { Inject, Injectable } from "@tsed/di";
 import { Context } from "../../models";
 import { DotEnv } from "../../utils/dotenv";
 import { FileSystem } from "../../utils/fs";
-import { Runner } from "../../utils/shell";
 import { SubModule } from "../../utils/submodule";
 import { PlatformBuildResult } from "../PlatformBuildResult";
 import { PlatformInterface } from "../PlatformInterface";
@@ -12,8 +11,7 @@ export class GolangPlatform implements PlatformInterface {
   constructor(
     @Inject() private readonly dotEnv: DotEnv,
     @Inject() private readonly subModule: SubModule,
-    @Inject() private readonly fileSystem: FileSystem,
-    @Inject() private readonly runner: Runner
+    @Inject() private readonly fileSystem: FileSystem
   ) {}
 
   async build(context: Context, environment: Record<string, string>): Promise<PlatformBuildResult> {
@@ -24,9 +22,9 @@ export class GolangPlatform implements PlatformInterface {
     this.dotEnv.write(environment);
     const submodules = await this.subModule.read();
 
-    const commandFiles: Array<string> = [...this.fileSystem.glob("app/cmd/**/main.go")];
+    const commandFiles: Array<string> = [...this.fileSystem.glob("app/cmd/*/main.go")];
     for (const submodule in submodules) {
-      commandFiles.push(...this.fileSystem.glob(`${submodule}/app/cmd/**/main.go`));
+      commandFiles.push(...this.fileSystem.glob(`${submodule}/app/cmd/*/main.go`));
     }
 
     const commands: Array<string> = [];
