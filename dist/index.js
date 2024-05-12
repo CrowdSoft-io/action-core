@@ -1866,7 +1866,7 @@ let GolangPlatform = class GolangPlatform {
             }
             commands.push(`go build -o bin/${matches[1]} ${file}`);
         }
-        console.log(commands);
+        console.log({ submodules, commands });
         return {
             files: ["bin", ".env"],
             postBuild: {
