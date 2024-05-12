@@ -1857,22 +1857,19 @@ let GolangPlatform = class GolangPlatform {
         }
         this.dotEnv.write(environment);
         const submodules = await this.subModule.read();
-        const commandFiles = [...this.fileSystem.glob("app/cmd/*/main.go")];
+        const commandDirs = [...this.fileSystem.glob("app/cmd/*")];
         for (const submodule in submodules) {
-            commandFiles.push(...this.fileSystem.glob(`${submodule}/app/cmd/*/main.go`));
+            commandDirs.push(...this.fileSystem.glob(`${submodule}/app/cmd/*`));
         }
         const commands = [];
-        for (const file of commandFiles) {
-            const matches = file.match(/\/(\w+)\/main\.go$/);
+        for (const dir of commandDirs) {
+            const matches = dir.match(/\/(\w+)$/);
             if (!matches) {
-                throw new Error(`Invalid command "${file}"`);
+                throw new Error(`Invalid command "${dir}"`);
             }
-            commands.push(`go build -o bin/${matches[1]} ${file}`);
+            commands.push(`go build -o bin/${matches[1]} ${dir}/main.go`);
         }
-        console.log({ submodules, commandFiles, commands });
-        await this.runner.run("pwd");
-        await this.runner.run("ls");
-        await this.runner.run("ls", submodules[0]);
+        console.log({ submodules, commandFiles: commandDirs, commands });
         return {
             files: ["bin", ".env"],
             postBuild: {
