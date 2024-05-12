@@ -23,7 +23,7 @@ export class GolangPlatform implements PlatformInterface {
     const submodules = await this.subModule.read();
 
     const commandFiles: Array<string> = [...this.fileSystem.glob("app/cmd/*/main.go")];
-    for (const submodule in submodules) {
+    for (const submodule of submodules) {
       commandFiles.push(...this.fileSystem.glob(`${submodule}/app/cmd/*/main.go`));
     }
 

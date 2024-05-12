@@ -1855,7 +1855,7 @@ let GolangPlatform = class GolangPlatform {
         this.dotEnv.write(environment);
         const submodules = await this.subModule.read();
         const commandFiles = [...this.fileSystem.glob("app/cmd/*/main.go")];
-        for (const submodule in submodules) {
+        for (const submodule of submodules) {
             commandFiles.push(...this.fileSystem.glob(`${submodule}/app/cmd/*/main.go`));
         }
         const commands = [];
@@ -2605,7 +2605,7 @@ let FileSystem = class FileSystem {
         return fs_1.default.existsSync(path);
     }
     glob(pattern) {
-        return (0, glob_1.globSync)(pattern, { debug: true });
+        return (0, glob_1.globSync)(pattern);
     }
     mkdir(path) {
         fs_1.default.mkdirSync(path, 0o755);
