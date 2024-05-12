@@ -2,6 +2,7 @@ import { Inject, Injectable } from "@tsed/di";
 import { Context } from "../../models";
 import { DotEnv } from "../../utils/dotenv";
 import { FileSystem } from "../../utils/fs";
+import { Runner } from "../../utils/shell";
 import { SubModule } from "../../utils/submodule";
 import { PlatformBuildResult } from "../PlatformBuildResult";
 import { PlatformInterface } from "../PlatformInterface";
@@ -11,7 +12,8 @@ export class GolangPlatform implements PlatformInterface {
   constructor(
     @Inject() private readonly dotEnv: DotEnv,
     @Inject() private readonly subModule: SubModule,
-    @Inject() private readonly fileSystem: FileSystem
+    @Inject() private readonly fileSystem: FileSystem,
+    @Inject() private readonly runner: Runner
   ) {}
 
   async build(context: Context, environment: Record<string, string>): Promise<PlatformBuildResult> {
@@ -35,7 +37,11 @@ export class GolangPlatform implements PlatformInterface {
       }
       commands.push(`go build -o bin/${matches[1]} ${file}`);
     }
+
     console.log({ submodules, commandFiles, commands });
+    await this.runner.run("pwd");
+    await this.runner.run("ls");
+    await this.runner.run("ls", submodules[0]);
 
     return {
       files: ["bin", ".env"],

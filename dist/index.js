@@ -1838,15 +1838,18 @@ exports.GolangPlatform = void 0;
 const di_1 = __nccwpck_require__(9270);
 const dotenv_1 = __nccwpck_require__(55739);
 const fs_1 = __nccwpck_require__(75312);
+const shell_1 = __nccwpck_require__(30432);
 const submodule_1 = __nccwpck_require__(29198);
 let GolangPlatform = class GolangPlatform {
     dotEnv;
     subModule;
     fileSystem;
-    constructor(dotEnv, subModule, fileSystem) {
+    runner;
+    constructor(dotEnv, subModule, fileSystem, runner) {
         this.dotEnv = dotEnv;
         this.subModule = subModule;
         this.fileSystem = fileSystem;
+        this.runner = runner;
     }
     async build(context, environment) {
         if (!this.fileSystem.exists("bin")) {
@@ -1867,6 +1870,9 @@ let GolangPlatform = class GolangPlatform {
             commands.push(`go build -o bin/${matches[1]} ${file}`);
         }
         console.log({ submodules, commandFiles, commands });
+        await this.runner.run("pwd");
+        await this.runner.run("ls");
+        await this.runner.run("ls", submodules[0]);
         return {
             files: ["bin", ".env"],
             postBuild: {
@@ -1880,9 +1886,11 @@ GolangPlatform = __decorate([
     __param(0, (0, di_1.Inject)()),
     __param(1, (0, di_1.Inject)()),
     __param(2, (0, di_1.Inject)()),
+    __param(3, (0, di_1.Inject)()),
     __metadata("design:paramtypes", [dotenv_1.DotEnv,
         submodule_1.SubModule,
-        fs_1.FileSystem])
+        fs_1.FileSystem,
+        shell_1.Runner])
 ], GolangPlatform);
 exports.GolangPlatform = GolangPlatform;
 
