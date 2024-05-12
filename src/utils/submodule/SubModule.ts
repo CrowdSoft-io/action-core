@@ -17,7 +17,7 @@ export class SubModule {
     await this.runner.run("git", "submodule", "update");
 
     const config = this.fileSystem.readFile(".gitmodules");
-    const matches = config.matchAll(/\[submodule "([\w-]+)"]/);
+    const matches = config.matchAll(/\[submodule "([\w-]+)"]/g);
     for (const match of matches) {
       submodules.push(match[1]);
     }
