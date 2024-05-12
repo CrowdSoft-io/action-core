@@ -1849,6 +1849,9 @@ let GolangPlatform = class GolangPlatform {
         this.fileSystem = fileSystem;
     }
     async build(context, environment) {
+        if (!this.fileSystem.exists("bin")) {
+            this.fileSystem.mkdir("bin");
+        }
         this.dotEnv.write(environment);
         const submodules = await this.subModule.read();
         const commandFiles = [...this.fileSystem.glob("app/cmd/*/main.go")];
@@ -1865,7 +1868,7 @@ let GolangPlatform = class GolangPlatform {
         }
         console.log(commands);
         return {
-            files: [...submodules, "bin", ".env"],
+            files: ["bin", ".env"],
             postBuild: {
                 golangBuild: commands.join(" && \\\n")
             }

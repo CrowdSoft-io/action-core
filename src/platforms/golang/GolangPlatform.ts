@@ -15,6 +15,10 @@ export class GolangPlatform implements PlatformInterface {
   ) {}
 
   async build(context: Context, environment: Record<string, string>): Promise<PlatformBuildResult> {
+    if (!this.fileSystem.exists("bin")) {
+      this.fileSystem.mkdir("bin");
+    }
+
     this.dotEnv.write(environment);
     const submodules = await this.subModule.read();
 
@@ -34,7 +38,7 @@ export class GolangPlatform implements PlatformInterface {
     console.log(commands);
 
     return {
-      files: [...submodules, "bin", ".env"],
+      files: ["bin", ".env"],
       postBuild: {
         golangBuild: commands.join(" && \\\n")
       }
