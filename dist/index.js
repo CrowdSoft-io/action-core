@@ -1863,23 +1863,12 @@ let GolangPlatform = class GolangPlatform {
             }
             commands.push(`go build -o bin/${matches[1]} ${file}`);
         }
+        console.log(commands);
         return {
             files: [...submodules, ".env"],
             postBuild: {
                 golangBuild: commands.join(" && \\\n")
-            },
-            preRelease: [
-                {
-                    name: "GoDocker - Build docker container",
-                    actions: [`docker build -t ${context.serviceName} ${context.remote.releaseDir}`]
-                }
-            ],
-            postRelease: [
-                {
-                    name: "GoDocker - Remove old images",
-                    actions: ["docker image prune -f"]
-                }
-            ]
+            }
         };
     }
 };
