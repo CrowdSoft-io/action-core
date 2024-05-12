@@ -1853,20 +1853,35 @@ let GolangPlatform = class GolangPlatform {
             this.fileSystem.mkdir("bin");
         }
         this.dotEnv.write(environment);
-        const submodules = await this.subModule.read();
-        const commandFiles = [...this.fileSystem.glob("app/cmd/*/main.go")];
-        for (const submodule of submodules) {
-            commandFiles.push(...this.fileSystem.glob(`${submodule}/app/cmd/*/main.go`));
-        }
         const commands = [];
-        for (const file of commandFiles) {
-            const matches = file.match(/\/(\w+)\/main\.go$/);
-            if (!matches) {
-                throw new Error(`Invalid command "${file}"`);
+        const rootFiles = this.fileSystem.glob("app/cmd/*/main.go");
+        if (rootFiles.length > 0) {
+            commands.push("go get ./...");
+            for (const file of rootFiles) {
+                const matches = file.match(/\/(\w+)\/main\.go$/);
+                if (!matches) {
+                    throw new Error(`Invalid command "${file}"`);
+                }
+                commands.push(`go build -o bin/${matches[1]} ${file}`);
             }
-            commands.push(`go build -o bin/${matches[1]} ${file}`);
         }
-        console.log({ submodules, commandFiles, commands });
+        const submodules = await this.subModule.read();
+        for (const submodule of submodules) {
+            const submoduleFiles = this.fileSystem.glob(`${submodule}/app/cmd/*/main.go`);
+            if (submoduleFiles.length > 0) {
+                commands.push(`cd ${submodule}`);
+                commands.push("go get ./...");
+                for (const file of rootFiles) {
+                    const matches = file.match(/\/(\w+)\/main\.go$/);
+                    if (!matches) {
+                        throw new Error(`Invalid command "${file}"`);
+                    }
+                    commands.push(`go build -o ../bin/${matches[1]} ${file.replace(submodule + "/", "")}`);
+                }
+                commands.push("cd ..");
+            }
+        }
+        console.log({ submodules, commands });
         return {
             files: ["bin", ".env"],
             postBuild: {
