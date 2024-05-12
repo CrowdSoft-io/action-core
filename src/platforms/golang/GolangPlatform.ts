@@ -34,7 +34,7 @@ export class GolangPlatform implements PlatformInterface {
     console.log(commands);
 
     return {
-      files: [...submodules, ".env"],
+      files: [...submodules, "bin", ".env"],
       postBuild: {
         golangBuild: commands.join(" && \\\n")
       }
