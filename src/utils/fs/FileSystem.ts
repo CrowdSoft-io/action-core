@@ -1,10 +1,15 @@
 import { Injectable } from "@tsed/di";
 import fs from "fs";
+import { globSync } from "glob";
 
 @Injectable()
 export class FileSystem {
   exists(path: string): boolean {
     return fs.existsSync(path);
+  }
+
+  glob(pattern: string): Array<string> {
+    return globSync(pattern);
   }
 
   mkdir(path: string): void {

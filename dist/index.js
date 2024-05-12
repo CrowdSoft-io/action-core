@@ -63,6 +63,7 @@ let Builder = class Builder {
             buildDir: context.local.buildDir,
             releaseDir: context.remote.buildDir,
             installScript: `${context.remote.buildBinDir}/install.sh`,
+            golangBuild: platformResult.postBuild?.golangBuild ?? "",
             runComposer: !!platformResult.postBuild?.runComposer
         };
     }
@@ -344,6 +345,7 @@ async function main() {
     core.setOutput("build_dir", result.buildDir);
     core.setOutput("release_dir", result.releaseDir);
     core.setOutput("install_script", result.installScript);
+    core.setOutput("golang_build", result.golangBuild);
     core.setOutput("run_composer", result.runComposer);
     console.log(`Building "${platform}" version "${result.version}" finished.`);
     await injector.destroy();
@@ -1544,6 +1546,7 @@ var PlatformName;
 (function (PlatformName) {
     PlatformName["Docker"] = "docker";
     PlatformName["GoDocker"] = "go-docker";
+    PlatformName["Golang"] = "golang";
     PlatformName["Laravel"] = "laravel";
     PlatformName["Next"] = "next";
     PlatformName["React"] = "react";
@@ -1577,6 +1580,7 @@ exports.PlatformResolver = void 0;
 const di_1 = __nccwpck_require__(9270);
 const docker_1 = __nccwpck_require__(88578);
 const go_docker_1 = __nccwpck_require__(99426);
+const golang_1 = __nccwpck_require__(50280);
 const laravel_1 = __nccwpck_require__(9054);
 const next_1 = __nccwpck_require__(68749);
 const PlatformName_1 = __nccwpck_require__(41383);
@@ -1587,6 +1591,7 @@ const vue_js_1 = __nccwpck_require__(35843);
 const dictionary = {
     [PlatformName_1.PlatformName.Docker]: docker_1.DockerPlatform,
     [PlatformName_1.PlatformName.GoDocker]: go_docker_1.GoDockerPlatform,
+    [PlatformName_1.PlatformName.Golang]: golang_1.GolangPlatform,
     [PlatformName_1.PlatformName.Laravel]: laravel_1.LaravelPlatform,
     [PlatformName_1.PlatformName.Next]: next_1.NextPlatform,
     [PlatformName_1.PlatformName.React]: react_1.ReactPlatform,
@@ -1807,6 +1812,112 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 __exportStar(__nccwpck_require__(74302), exports);
+
+
+/***/ }),
+
+/***/ 32990:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.GolangPlatform = void 0;
+const di_1 = __nccwpck_require__(9270);
+const dotenv_1 = __nccwpck_require__(55739);
+const fs_1 = __nccwpck_require__(75312);
+const submodule_1 = __nccwpck_require__(29198);
+let GolangPlatform = class GolangPlatform {
+    dotEnv;
+    subModule;
+    fileSystem;
+    constructor(dotEnv, subModule, fileSystem) {
+        this.dotEnv = dotEnv;
+        this.subModule = subModule;
+        this.fileSystem = fileSystem;
+    }
+    async build(context, environment) {
+        this.dotEnv.write(environment);
+        const submodules = await this.subModule.read();
+        const commandFiles = [...this.fileSystem.glob("app/cmd/*/main.go")];
+        for (const submodule in submodules) {
+            commandFiles.push(...this.fileSystem.glob(`${submodule}/app/cmd/*/main.go`));
+        }
+        const commands = [];
+        for (const file of commandFiles) {
+            const matches = file.match(/\/(\w+)\/main\.go$/);
+            if (!matches) {
+                throw new Error(`Invalid command "${file}"`);
+            }
+            commands.push(`go build -o bin/${matches[1]} ${file}`);
+        }
+        return {
+            files: [...submodules, ".env"],
+            postBuild: {
+                golangBuild: commands.join(" && \\\n")
+            },
+            preRelease: [
+                {
+                    name: "GoDocker - Build docker container",
+                    actions: [`docker build -t ${context.serviceName} ${context.remote.releaseDir}`]
+                }
+            ],
+            postRelease: [
+                {
+                    name: "GoDocker - Remove old images",
+                    actions: ["docker image prune -f"]
+                }
+            ]
+        };
+    }
+};
+GolangPlatform = __decorate([
+    (0, di_1.Injectable)(),
+    __param(0, (0, di_1.Inject)()),
+    __param(1, (0, di_1.Inject)()),
+    __param(2, (0, di_1.Inject)()),
+    __metadata("design:paramtypes", [dotenv_1.DotEnv,
+        submodule_1.SubModule,
+        fs_1.FileSystem])
+], GolangPlatform);
+exports.GolangPlatform = GolangPlatform;
+
+
+/***/ }),
+
+/***/ 50280:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __exportStar = (this && this.__exportStar) || function(m, exports) {
+    for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+__exportStar(__nccwpck_require__(32990), exports);
 
 
 /***/ }),
@@ -2409,6 +2520,75 @@ __exportStar(__nccwpck_require__(29778), exports);
 
 /***/ }),
 
+/***/ 7613:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.DotEnv = void 0;
+const di_1 = __nccwpck_require__(9270);
+const fs_1 = __nccwpck_require__(75312);
+let DotEnv = class DotEnv {
+    fileSystem;
+    constructor(fileSystem) {
+        this.fileSystem = fileSystem;
+    }
+    write(environment, path = ".env") {
+        const lines = [];
+        for (const name in environment) {
+            lines.push(`${name}=${environment[name]}`);
+        }
+        this.fileSystem.writeFile(path, lines.join("\n") + "\n");
+    }
+};
+DotEnv = __decorate([
+    (0, di_1.Injectable)(),
+    __param(0, (0, di_1.Inject)()),
+    __metadata("design:paramtypes", [fs_1.FileSystem])
+], DotEnv);
+exports.DotEnv = DotEnv;
+
+
+/***/ }),
+
+/***/ 55739:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __exportStar = (this && this.__exportStar) || function(m, exports) {
+    for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+__exportStar(__nccwpck_require__(7613), exports);
+
+
+/***/ }),
+
 /***/ 20212:
 /***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
 
@@ -2427,9 +2607,13 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.FileSystem = void 0;
 const di_1 = __nccwpck_require__(9270);
 const fs_1 = __importDefault(__nccwpck_require__(57147));
+const glob_1 = __nccwpck_require__(67106);
 let FileSystem = class FileSystem {
     exists(path) {
         return fs_1.default.existsSync(path);
+    }
+    glob(pattern) {
+        return (0, glob_1.globSync)(pattern);
     }
     mkdir(path) {
         fs_1.default.mkdirSync(path, 0o755);
@@ -2851,6 +3035,86 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 __exportStar(__nccwpck_require__(47784), exports);
+
+
+/***/ }),
+
+/***/ 86789:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.SubModule = void 0;
+const di_1 = __nccwpck_require__(9270);
+const fs_1 = __nccwpck_require__(75312);
+const shell_1 = __nccwpck_require__(30432);
+let SubModule = class SubModule {
+    fileSystem;
+    runner;
+    constructor(fileSystem, runner) {
+        this.fileSystem = fileSystem;
+        this.runner = runner;
+    }
+    async read() {
+        const submodules = [];
+        if (!this.fileSystem.exists(".gitmodules")) {
+            return submodules;
+        }
+        await this.runner.run("git", "submodule", "init");
+        await this.runner.run("git", "submodule", "update");
+        const config = this.fileSystem.readFile(".gitmodules");
+        const matches = config.matchAll(/\[submodule "([\w-]+)"]/);
+        for (const match of matches) {
+            submodules.push(match[1]);
+        }
+        return submodules;
+    }
+};
+SubModule = __decorate([
+    (0, di_1.Injectable)(),
+    __param(0, (0, di_1.Inject)()),
+    __param(1, (0, di_1.Inject)()),
+    __metadata("design:paramtypes", [fs_1.FileSystem, shell_1.Runner])
+], SubModule);
+exports.SubModule = SubModule;
+
+
+/***/ }),
+
+/***/ 29198:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __exportStar = (this && this.__exportStar) || function(m, exports) {
+    for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+__exportStar(__nccwpck_require__(86789), exports);
 
 
 /***/ }),

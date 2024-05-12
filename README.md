@@ -38,6 +38,10 @@ The name of release directory.
 
 The path to install script.
 
+### `golang_build`
+
+Need to run golang build.
+
 ### `run_composer`
 
 Need to run composer install.

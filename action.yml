@@ -26,6 +26,8 @@ outputs:
     description: Release directory
   install_script:
     description: Install script
+  golang_build:
+    description: Need golang build
   run_composer:
     description: Need run composer
 
