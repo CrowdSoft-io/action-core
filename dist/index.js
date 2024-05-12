@@ -2605,7 +2605,7 @@ let FileSystem = class FileSystem {
         return fs_1.default.existsSync(path);
     }
     glob(pattern) {
-        return (0, glob_1.globSync)(pattern);
+        return (0, glob_1.globSync)(pattern, { debug: true });
     }
     mkdir(path) {
         fs_1.default.mkdirSync(path, 0o755);

@@ -9,7 +9,7 @@ export class FileSystem {
   }
 
   glob(pattern: string): Array<string> {
-    return globSync(pattern);
+    return globSync(pattern, { debug: true });
   }
 
   mkdir(path: string): void {
