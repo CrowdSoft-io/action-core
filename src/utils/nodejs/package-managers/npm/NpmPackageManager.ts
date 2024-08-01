@@ -18,7 +18,7 @@ export class NpmPackageManager implements PackageManagerInterface {
       args.push("--ignore-scripts");
     }
     if (options?.frozenLockfile) {
-      args.push("--package-lock-only");
+      // args.push("--no-shrinkwrap");
     }
 
     await this.runner.run("npm", "ci", ...args);
