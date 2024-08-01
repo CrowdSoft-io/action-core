@@ -18,10 +18,10 @@ export class NpmPackageManager implements PackageManagerInterface {
       args.push("--ignore-scripts");
     }
     if (options?.frozenLockfile) {
-      // args.push("--no-shrinkwrap");
+      args.push("--no-shrinkwrap");
     }
 
-    await this.runner.run("npm", "ci", ...args);
+    await this.runner.run("npm", "i", ...args);
   }
 
   async run(command: string, ...args: Array<string>): Promise<void> {
