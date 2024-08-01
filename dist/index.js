@@ -2857,7 +2857,7 @@ let NpmPackageManager = class NpmPackageManager {
             args.push("--ignore-scripts");
         }
         if (options?.frozenLockfile) {
-            args.push("--no-shrinkwrap");
+            args.push("--package-lock-only");
         }
         await this.runner.run("npm", "ci", ...args);
     }
