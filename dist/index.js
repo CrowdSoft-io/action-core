@@ -2277,7 +2277,10 @@ let SymfonyPlatform = class SymfonyPlatform {
     async build(context, environment) {
         const lines = [];
         for (const name in environment) {
-            if (typeof environment[name] === "string" && environment[name].includes("\n")) {
+            if (environment[name] === null || environment[name] === "null") {
+                lines.push(`${name}=`);
+            }
+            else if (typeof environment[name] === "string" && environment[name].includes("\n")) {
                 lines.push(`${name}='${environment[name]}'`);
             }
             else {
