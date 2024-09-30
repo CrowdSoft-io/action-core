@@ -11,7 +11,11 @@ export class SymfonyPlatform implements PlatformInterface {
   async build(context: Context, environment: Record<string, string>): Promise<PlatformBuildResult> {
     const lines: Array<string> = [];
     for (const name in environment) {
-      lines.push(`${name}='${environment[name]}'`);
+      if (environment[name].includes("\n")) {
+        lines.push(`${name}='${environment[name]}'`);
+      } else {
+        lines.push(`${name}=${environment[name]}`);
+      }
     }
     this.fileSystem.writeFile(".env", lines.join("\n") + "\n", true);
 

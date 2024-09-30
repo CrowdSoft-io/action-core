@@ -2277,7 +2277,12 @@ let SymfonyPlatform = class SymfonyPlatform {
     async build(context, environment) {
         const lines = [];
         for (const name in environment) {
-            lines.push(`${name}='${environment[name]}'`);
+            if (environment[name].includes("\n")) {
+                lines.push(`${name}='${environment[name]}'`);
+            }
+            else {
+                lines.push(`${name}=${environment[name]}`);
+            }
         }
         this.fileSystem.writeFile(".env", lines.join("\n") + "\n", true);
         const files = ["bin", "config", "public", "src", ".env", "composer.json"];
