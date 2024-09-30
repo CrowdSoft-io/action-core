@@ -11,7 +11,7 @@ export class SymfonyPlatform implements PlatformInterface {
   async build(context: Context, environment: Record<string, string>): Promise<PlatformBuildResult> {
     const lines: Array<string> = [];
     for (const name in environment) {
-      if (environment[name].includes("\n")) {
+      if (environment[name]?.includes("\n")) {
         lines.push(`${name}='${environment[name]}'`);
       } else {
         lines.push(`${name}=${environment[name]}`);
