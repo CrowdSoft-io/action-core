@@ -3,6 +3,7 @@ import { DockerPlatform } from "./docker";
 import { GoDockerPlatform } from "./go-docker";
 import { GolangPlatform } from "./golang";
 import { LaravelPlatform } from "./laravel";
+import { NestPlatform } from "./nest";
 import { NextPlatform } from "./next";
 import { PlatformInterface } from "./PlatformInterface";
 import { PlatformName } from "./PlatformName";
@@ -16,6 +17,7 @@ const dictionary: Record<PlatformName, TokenProvider<PlatformInterface>> = {
   [PlatformName.GoDocker]: GoDockerPlatform,
   [PlatformName.Golang]: GolangPlatform,
   [PlatformName.Laravel]: LaravelPlatform,
+  [PlatformName.Nest]: NestPlatform,
   [PlatformName.Next]: NextPlatform,
   [PlatformName.React]: ReactPlatform,
   [PlatformName.Symfony]: SymfonyPlatform,

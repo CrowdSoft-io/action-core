@@ -1548,6 +1548,7 @@ var PlatformName;
     PlatformName["GoDocker"] = "go-docker";
     PlatformName["Golang"] = "golang";
     PlatformName["Laravel"] = "laravel";
+    PlatformName["Nest"] = "nest";
     PlatformName["Next"] = "next";
     PlatformName["React"] = "react";
     PlatformName["Symfony"] = "symfony";
@@ -1582,6 +1583,7 @@ const docker_1 = __nccwpck_require__(88578);
 const go_docker_1 = __nccwpck_require__(99426);
 const golang_1 = __nccwpck_require__(50280);
 const laravel_1 = __nccwpck_require__(9054);
+const nest_1 = __nccwpck_require__(60805);
 const next_1 = __nccwpck_require__(68749);
 const PlatformName_1 = __nccwpck_require__(41383);
 const react_1 = __nccwpck_require__(19327);
@@ -1593,6 +1595,7 @@ const dictionary = {
     [PlatformName_1.PlatformName.GoDocker]: go_docker_1.GoDockerPlatform,
     [PlatformName_1.PlatformName.Golang]: golang_1.GolangPlatform,
     [PlatformName_1.PlatformName.Laravel]: laravel_1.LaravelPlatform,
+    [PlatformName_1.PlatformName.Nest]: nest_1.NestPlatform,
     [PlatformName_1.PlatformName.Next]: next_1.NextPlatform,
     [PlatformName_1.PlatformName.React]: react_1.ReactPlatform,
     [PlatformName_1.PlatformName.Symfony]: symfony_1.SymfonyPlatform,
@@ -1950,6 +1953,7 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 __exportStar(__nccwpck_require__(99426), exports);
 __exportStar(__nccwpck_require__(9054), exports);
+__exportStar(__nccwpck_require__(60805), exports);
 __exportStar(__nccwpck_require__(68749), exports);
 __exportStar(__nccwpck_require__(19327), exports);
 __exportStar(__nccwpck_require__(14345), exports);
@@ -2066,6 +2070,109 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 __exportStar(__nccwpck_require__(21514), exports);
+
+
+/***/ }),
+
+/***/ 94798:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.NestPlatform = void 0;
+const di_1 = __nccwpck_require__(9270);
+const fs_1 = __nccwpck_require__(75312);
+const nodejs_1 = __nccwpck_require__(99140);
+const shell_1 = __nccwpck_require__(30432);
+let NestPlatform = class NestPlatform {
+    packageManagerResolver;
+    fileSystem;
+    runner;
+    constructor(packageManagerResolver, fileSystem, runner) {
+        this.packageManagerResolver = packageManagerResolver;
+        this.fileSystem = fileSystem;
+        this.runner = runner;
+    }
+    async build(context, environment) {
+        const packageManager = this.packageManagerResolver.resolve();
+        process.env.CI = "true";
+        const lines = [];
+        for (const name in environment) {
+            lines.push(`${name}='${environment[name]}'`);
+        }
+        this.fileSystem.writeFile(".env", lines.join("\n") + "\n");
+        await packageManager.install({ frozenLockfile: true });
+        await packageManager.run("build");
+        await this.runner.run("rm", "-rf", "node_modules");
+        await packageManager.install({ production: true, ignoreScripts: true, frozenLockfile: true });
+        const files = ["dist", "node_modules", ".env", "package.json"];
+        if (this.fileSystem.exists("i18n")) {
+            files.push("i18n");
+        }
+        if (this.fileSystem.exists("views")) {
+            files.push("views");
+        }
+        return {
+            files,
+            preRelease: [
+                {
+                    name: "Copy config",
+                    actions: [
+                        `if [[ -f '${context.remote.configsRoot}/.env' ]]; then cat '${context.remote.configsRoot}/.env' >> '${context.remote.releaseDir}/.env'; fi`
+                    ]
+                }
+            ]
+        };
+    }
+};
+NestPlatform = __decorate([
+    (0, di_1.Injectable)(),
+    __param(0, (0, di_1.Inject)()),
+    __param(1, (0, di_1.Inject)()),
+    __param(2, (0, di_1.Inject)()),
+    __metadata("design:paramtypes", [nodejs_1.PackageManagerResolver,
+        fs_1.FileSystem,
+        shell_1.Runner])
+], NestPlatform);
+exports.NestPlatform = NestPlatform;
+
+
+/***/ }),
+
+/***/ 60805:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __exportStar = (this && this.__exportStar) || function(m, exports) {
+    for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+__exportStar(__nccwpck_require__(94798), exports);
 
 
 /***/ }),
