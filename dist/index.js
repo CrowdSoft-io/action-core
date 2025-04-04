@@ -2230,7 +2230,15 @@ let NextPlatform = class NextPlatform {
             files.push("messages");
         }
         return {
-            files
+            files,
+            preRelease: [
+                {
+                    name: "Copy config",
+                    actions: [
+                        `if [[ -f '${context.remote.configsRoot}/.env' ]]; then cat '${context.remote.configsRoot}/.env' >> '${context.remote.releaseDir}/.env'; fi`
+                    ]
+                }
+            ]
         };
     }
 };
