@@ -2024,6 +2024,12 @@ let LaravelPlatform = class LaravelPlatform {
             },
             preRelease: [
                 {
+                    name: "Copy config",
+                    actions: [
+                        `if [[ -f '${context.remote.configsRoot}/.env' ]]; then cat '${context.remote.configsRoot}/.env' >> '${context.remote.releaseDir}/.env'; fi`
+                    ]
+                },
+                {
                     name: "Laravel - Run migrations",
                     actions: [`php ${context.remote.releaseDir}/artisan migrate --force --no-interaction`]
                 },
