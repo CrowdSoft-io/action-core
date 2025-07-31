@@ -51,11 +51,7 @@ export class LaravelAwinstPlatform implements PlatformInterface {
         },
         {
           name: "Laravel - Clear cache",
-          actions: [
-            `php7.4 ${context.remote.releaseDir}/core/artisan cache:clear`,
-            `php7.4 ${context.remote.releaseDir}/core/artisan config:clear`,
-            `php7.4 ${context.remote.releaseDir}/core/artisan storage:link`
-          ]
+          actions: [`php7.4 ${context.remote.releaseDir}/core/artisan cache:clear`]
         }
       ]
     };
