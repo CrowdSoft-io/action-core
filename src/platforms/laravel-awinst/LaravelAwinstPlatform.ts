@@ -29,7 +29,7 @@ export class LaravelAwinstPlatform implements PlatformInterface {
       postBuild: {
         phpBuild: [
           "cd core",
-          "APP_ENV=prod APP_DEBUG=0 composer install -n --no-dev",
+          "APP_ENV=prod APP_DEBUG=0 composer install -n --no-dev --no-scripts",
           `tar -rf ${context.local.buildDir}/release.tar core/vendor`,
           "cd .."
         ].join(" && \\\n")
