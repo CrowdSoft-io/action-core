@@ -2018,7 +2018,7 @@ let LaravelAwinstPlatform = class LaravelAwinstPlatform {
             lines.push(`${name}=${environment[name] ?? ""}`);
         }
         lines.sort();
-        this.fileSystem.writeFile(".env", lines.join("\n") + "\n");
+        this.fileSystem.writeFile("core/.env", lines.join("\n") + "\n");
         await this.runner.run("rm", "-rf", "assets/images/frontend", "assets/images/user/profile");
         await this.runner.run("rm", "robots.txt");
         await this.runner.run("cp", ".ci-cd/robots/robots.prod.txt", "robots.txt");

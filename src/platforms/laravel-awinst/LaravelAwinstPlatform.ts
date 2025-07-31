@@ -15,7 +15,7 @@ export class LaravelAwinstPlatform implements PlatformInterface {
       lines.push(`${name}=${environment[name] ?? ""}`);
     }
     lines.sort();
-    this.fileSystem.writeFile(".env", lines.join("\n") + "\n");
+    this.fileSystem.writeFile("core/.env", lines.join("\n") + "\n");
 
     await this.runner.run("rm", "-rf", "assets/images/frontend", "assets/images/user/profile");
 
