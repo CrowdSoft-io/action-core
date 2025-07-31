@@ -265,7 +265,11 @@ export class NginxConfigRenderer {
   private renderFastCgiPhpLocation(context: Context, service: NginxPhpService): Array<string> {
     const lines: Array<string> = [];
 
-    lines.push("    location ~ .php$ {");
+    if (service.options.index_strict) {
+      lines.push("    location ~ ^/index\\.php(/|$) {");
+    } else {
+      lines.push("    location ~ .php$ {");
+    }
     lines.push(`        root         ${context.remote.projectRoot}/public;`);
     lines.push("        include      snippets/fastcgi-php.conf;");
     lines.push(`        fastcgi_pass unix:/var/run/php/php${service.options.version}-fpm-${context.remote.user}.sock;`);

@@ -6,6 +6,7 @@ export type NginxPhpService = {
   readonly type: "php";
   readonly options: {
     readonly version: string;
+    readonly index_strict?: string;
   };
 };
 
