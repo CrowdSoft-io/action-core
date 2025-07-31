@@ -27,9 +27,12 @@ export class LaravelAwinstPlatform implements PlatformInterface {
     return {
       files,
       postBuild: {
-        composerBefore: "cd core",
-        runComposer: true,
-        composerAfter: "cd .."
+        phpBuild: [
+          "cd core",
+          "APP_ENV=prod APP_DEBUG=0 composer install -n --no-dev",
+          `tar -rf ${context.local.buildDir}/release.tar core/vendor`,
+          "cd .."
+        ].join(" && \\\n")
       },
       preRelease: [
         {

@@ -27,13 +27,11 @@ outputs:
   install_script:
     description: Install script
   golang_build:
-    description: Need golang build
-  composer_before:
-    description: Run before composer
+    description: Need Golang build
+  php_build:
+    description: Need PHP build
   run_composer:
-    description: Need run composer install
-  composer_after:
-    description: Run after composer
+    description: Need run composer
 
 runs:
   using: node20

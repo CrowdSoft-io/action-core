@@ -26,9 +26,8 @@ async function main(): Promise<void> {
   core.setOutput("release_dir", result.releaseDir);
   core.setOutput("install_script", result.installScript);
   core.setOutput("golang_build", result.golangBuild);
-  core.setOutput("composer_before", result.composerBefore);
+  core.setOutput("php_build", result.phpBuild);
   core.setOutput("run_composer", result.runComposer);
-  core.setOutput("composer_after", result.composerAfter);
 
   console.log(`Building "${platform}" version "${result.version}" finished.`);
 

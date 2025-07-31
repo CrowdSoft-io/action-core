@@ -40,19 +40,15 @@ The path to install script.
 
 ### `golang_build`
 
-Need to run golang build.
+Need to run Golang build.
 
-### `composer_before`
+### `php_build`
 
-Run before composer.
+Need to run PHP build.
 
 ### `run_composer`
 
 Need to run composer install.
-
-### `composer_after`
-
-Run after composer.
 
 ## Example usage
 
