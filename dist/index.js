@@ -2019,8 +2019,8 @@ let LaravelAwinstPlatform = class LaravelAwinstPlatform {
                 phpBuild: [
                     "cd core",
                     "APP_ENV=prod APP_DEBUG=0 composer install -n --no-dev --no-scripts",
-                    `tar -rf ${context.local.buildDir}/release.tar core/vendor`,
-                    "cd .."
+                    "cd ..",
+                    `tar -rf ${context.local.buildDir}/release.tar core/vendor`
                 ].join(" && \\\n")
             },
             preRelease: [
