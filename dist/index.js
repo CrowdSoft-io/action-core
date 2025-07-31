@@ -64,7 +64,9 @@ let Builder = class Builder {
             releaseDir: context.remote.buildDir,
             installScript: `${context.remote.buildBinDir}/install.sh`,
             golangBuild: platformResult.postBuild?.golangBuild ?? "",
-            runComposer: !!platformResult.postBuild?.runComposer
+            composerBefore: platformResult.postBuild?.composerBefore ?? "",
+            runComposer: !!platformResult.postBuild?.runComposer,
+            composerAfter: platformResult.postBuild?.composerAfter ?? ""
         };
     }
 };
@@ -346,7 +348,9 @@ async function main() {
     core.setOutput("release_dir", result.releaseDir);
     core.setOutput("install_script", result.installScript);
     core.setOutput("golang_build", result.golangBuild);
+    core.setOutput("composer_before", result.composerBefore);
     core.setOutput("run_composer", result.runComposer);
+    core.setOutput("composer_after", result.composerAfter);
     console.log(`Building "${platform}" version "${result.version}" finished.`);
     await injector.destroy();
 }
@@ -1548,6 +1552,7 @@ var PlatformName;
     PlatformName["GoDocker"] = "go-docker";
     PlatformName["Golang"] = "golang";
     PlatformName["Laravel"] = "laravel";
+    PlatformName["LaravelAwinst"] = "laravel-awinst";
     PlatformName["Nest"] = "nest";
     PlatformName["Next"] = "next";
     PlatformName["React"] = "react";
@@ -1583,6 +1588,7 @@ const docker_1 = __nccwpck_require__(88578);
 const go_docker_1 = __nccwpck_require__(99426);
 const golang_1 = __nccwpck_require__(50280);
 const laravel_1 = __nccwpck_require__(9054);
+const laravel_awinst_1 = __nccwpck_require__(35028);
 const nest_1 = __nccwpck_require__(60805);
 const next_1 = __nccwpck_require__(68749);
 const PlatformName_1 = __nccwpck_require__(41383);
@@ -1595,6 +1601,7 @@ const dictionary = {
     [PlatformName_1.PlatformName.GoDocker]: go_docker_1.GoDockerPlatform,
     [PlatformName_1.PlatformName.Golang]: golang_1.GolangPlatform,
     [PlatformName_1.PlatformName.Laravel]: laravel_1.LaravelPlatform,
+    [PlatformName_1.PlatformName.LaravelAwinst]: laravel_awinst_1.LaravelAwinstPlatform,
     [PlatformName_1.PlatformName.Nest]: nest_1.NestPlatform,
     [PlatformName_1.PlatformName.Next]: next_1.NextPlatform,
     [PlatformName_1.PlatformName.React]: react_1.ReactPlatform,
@@ -1953,6 +1960,7 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 __exportStar(__nccwpck_require__(99426), exports);
 __exportStar(__nccwpck_require__(9054), exports);
+__exportStar(__nccwpck_require__(35028), exports);
 __exportStar(__nccwpck_require__(60805), exports);
 __exportStar(__nccwpck_require__(68749), exports);
 __exportStar(__nccwpck_require__(19327), exports);
@@ -1963,6 +1971,116 @@ __exportStar(__nccwpck_require__(41516), exports);
 __exportStar(__nccwpck_require__(72032), exports);
 __exportStar(__nccwpck_require__(41383), exports);
 __exportStar(__nccwpck_require__(85142), exports);
+
+
+/***/ }),
+
+/***/ 47430:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+var __param = (this && this.__param) || function (paramIndex, decorator) {
+    return function (target, key) { decorator(target, key, paramIndex); }
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.LaravelAwinstPlatform = void 0;
+const di_1 = __nccwpck_require__(9270);
+const fs_1 = __nccwpck_require__(75312);
+const shell_1 = __nccwpck_require__(30432);
+let LaravelAwinstPlatform = class LaravelAwinstPlatform {
+    fileSystem;
+    runner;
+    constructor(fileSystem, runner) {
+        this.fileSystem = fileSystem;
+        this.runner = runner;
+    }
+    async build(context, environment) {
+        const lines = [];
+        for (const name in environment) {
+            lines.push(`${name}=${environment[name] ?? ""}`);
+        }
+        lines.sort();
+        this.fileSystem.writeFile(".env", lines.join("\n") + "\n");
+        await this.runner.run("rm", "-rf", "assets/images/frontend", "assets/images/user/profile");
+        await this.runner.run("rm", "robots.txt");
+        await this.runner.run("cp", ".ci-cd/robots/robots.prod.txt", "robots.txt");
+        const files = ["assets", "core", "richtexteditor", "index.php", "robots.txt"];
+        return {
+            files,
+            postBuild: {
+                composerBefore: "cd core",
+                runComposer: true,
+                composerAfter: "cd .."
+            },
+            preRelease: [
+                {
+                    name: "Copy config",
+                    actions: [
+                        `if [[ -f '${context.remote.configsRoot}/.env' ]]; then cat '${context.remote.configsRoot}/.env' >> '${context.remote.releaseDir}/.env'; fi`
+                    ]
+                },
+                {
+                    name: "Laravel - Run migrations",
+                    actions: [`php ${context.remote.releaseDir}/artisan migrate --force --no-interaction`]
+                },
+                {
+                    name: "Laravel - Run migration actions",
+                    actions: [`php ${context.remote.releaseDir}/artisan migrate:actions --force --no-interaction`]
+                },
+                {
+                    name: "Laravel - Clear cache",
+                    actions: [
+                        `php ${context.remote.releaseDir}/artisan cache:clear`,
+                        `php ${context.remote.releaseDir}/artisan config:clear`,
+                        `php ${context.remote.releaseDir}/artisan storage:link`
+                    ]
+                }
+            ]
+        };
+    }
+};
+LaravelAwinstPlatform = __decorate([
+    (0, di_1.Injectable)(),
+    __param(0, (0, di_1.Inject)()),
+    __param(1, (0, di_1.Inject)()),
+    __metadata("design:paramtypes", [fs_1.FileSystem, shell_1.Runner])
+], LaravelAwinstPlatform);
+exports.LaravelAwinstPlatform = LaravelAwinstPlatform;
+
+
+/***/ }),
+
+/***/ 35028:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __exportStar = (this && this.__exportStar) || function(m, exports) {
+    for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+__exportStar(__nccwpck_require__(47430), exports);
 
 
 /***/ }),

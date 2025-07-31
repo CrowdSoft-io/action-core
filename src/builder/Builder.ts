@@ -49,7 +49,9 @@ export class Builder {
       releaseDir: context.remote.buildDir,
       installScript: `${context.remote.buildBinDir}/install.sh`,
       golangBuild: platformResult.postBuild?.golangBuild ?? "",
-      runComposer: !!platformResult.postBuild?.runComposer
+      composerBefore: platformResult.postBuild?.composerBefore ?? "",
+      runComposer: !!platformResult.postBuild?.runComposer,
+      composerAfter: platformResult.postBuild?.composerAfter ?? ""
     };
   }
 }

@@ -42,9 +42,17 @@ The path to install script.
 
 Need to run golang build.
 
+### `composer_before`
+
+Run before composer.
+
 ### `run_composer`
 
 Need to run composer install.
+
+### `composer_after`
+
+Run after composer.
 
 ## Example usage
 

@@ -3,6 +3,7 @@ export enum PlatformName {
   GoDocker = "go-docker",
   Golang = "golang",
   Laravel = "laravel",
+  LaravelAwinst = "laravel-awinst",
   Nest = "nest",
   Next = "next",
   React = "react",
