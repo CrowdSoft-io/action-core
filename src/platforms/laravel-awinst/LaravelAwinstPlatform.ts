@@ -38,7 +38,7 @@ export class LaravelAwinstPlatform implements PlatformInterface {
         {
           name: "Copy config",
           actions: [
-            `if [[ -f '${context.remote.configsRoot}/.env' ]]; then cat '${context.remote.configsRoot}/.env' >> '${context.remote.releaseDir}/.env'; fi`
+            `if [[ -f '${context.remote.configsRoot}/.env' ]]; then cat '${context.remote.configsRoot}/.env' >> '${context.remote.releaseDir}/core/.env'; fi`
           ]
         },
         {
