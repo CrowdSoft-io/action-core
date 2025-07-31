@@ -190,12 +190,13 @@ exports.ContextFactory = ContextFactory;
 /***/ }),
 
 /***/ 56357:
-/***/ ((__unused_webpack_module, exports) => {
+/***/ ((__unused_webpack_module, exports, __nccwpck_require__) => {
 
 "use strict";
 
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.InstallScriptBuilder = void 0;
+const slugify_1 = __nccwpck_require__(36098);
 class InstallScriptBuilder {
     context;
     fileSystem;
@@ -206,7 +207,7 @@ class InstallScriptBuilder {
     }
     addStages(...stages) {
         stages.forEach(({ name, actions }) => {
-            const slug = name.replace(/\s+/g, "_").replace(/\W+/g, "").replace(/_{2,}/g, "_").toLowerCase() || Date.now();
+            const slug = (0, slugify_1.slugify)(name) || Date.now();
             const filename = `${slug}.sh`;
             this.stages.push({ name, filename, actions });
         });
@@ -587,6 +588,7 @@ exports.CronInfrastructure = void 0;
 const di_1 = __nccwpck_require__(9270);
 const cron_parser_1 = __importDefault(__nccwpck_require__(73855));
 const fs_1 = __nccwpck_require__(75312);
+const slugify_1 = __nccwpck_require__(36098);
 const templating_1 = __nccwpck_require__(49547);
 let CronInfrastructure = class CronInfrastructure {
     fileSystem;
@@ -631,8 +633,9 @@ let CronInfrastructure = class CronInfrastructure {
             // Check expression
             cron_parser_1.default.parseExpression(item.expression);
             const command = this.templating.render(context, item.command);
-            const stdoutLog = `${context.remote.logsDir}/cron.${item.name}.stdout.log`;
-            const stderrLog = `${context.remote.logsDir}/cron.${item.name}.stderr.log`;
+            const slug = (0, slugify_1.slugify)(item.name) || Date.now();
+            const stdoutLog = `${context.remote.logsDir}/cron.${slug}.stdout.log`;
+            const stderrLog = `${context.remote.logsDir}/cron.${slug}.stderr.log`;
             lines.push(`${item.expression} ${command} 1>> ${stdoutLog} 2>> ${stderrLog}`);
         }
         lines.push(`# END ${context.serviceName}`);
@@ -1411,6 +1414,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.SupervisorInfrastructure = void 0;
 const di_1 = __nccwpck_require__(9270);
 const fs_1 = __nccwpck_require__(75312);
+const slugify_1 = __nccwpck_require__(36098);
 const templating_1 = __nccwpck_require__(49547);
 let SupervisorInfrastructure = class SupervisorInfrastructure {
     fileSystem;
@@ -1437,7 +1441,8 @@ let SupervisorInfrastructure = class SupervisorInfrastructure {
         ];
         for (const program of config.programs) {
             const command = this.templating.render(context, program.command);
-            lines.push(`[program:${prefix}${context.serviceName}_${program.name}]`);
+            const slug = (0, slugify_1.slugify)(program.name) || Date.now();
+            lines.push(`[program:${prefix}${context.serviceName}_${slug}]`);
             lines.push(`command=${command}`);
             lines.push(`directory=${context.remote.projectRoot}`);
             lines.push("autostart=true");
@@ -1445,11 +1450,11 @@ let SupervisorInfrastructure = class SupervisorInfrastructure {
             lines.push("stopsignal=INT");
             lines.push("stopasgroup=true");
             lines.push("killasgroup=true");
-            lines.push(`stdout_logfile=${context.remote.logsDir}/supervisor.${program.name}.stdout.log`);
-            lines.push(`stderr_logfile=${context.remote.logsDir}/supervisor.${program.name}.stderr.log`);
+            lines.push(`stdout_logfile=${context.remote.logsDir}/supervisor.${slug}.stdout.log`);
+            lines.push(`stderr_logfile=${context.remote.logsDir}/supervisor.${slug}.stderr.log`);
             lines.push(`user=${context.remote.user}`);
             lines.push(`group=${context.remote.user}`);
-            lines.push(`process_name=${prefix}${context.serviceName}_${program.name}_%(process_num)s`);
+            lines.push(`process_name=${prefix}${context.serviceName}_${slug}_%(process_num)s`);
             lines.push(`numprocs=${program.replicas || 1}`);
             lines.push("");
         }
@@ -3297,6 +3302,46 @@ var __exportStar = (this && this.__exportStar) || function(m, exports) {
 };
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 __exportStar(__nccwpck_require__(47784), exports);
+
+
+/***/ }),
+
+/***/ 36098:
+/***/ (function(__unused_webpack_module, exports, __nccwpck_require__) {
+
+"use strict";
+
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __exportStar = (this && this.__exportStar) || function(m, exports) {
+    for (var p in m) if (p !== "default" && !Object.prototype.hasOwnProperty.call(exports, p)) __createBinding(exports, m, p);
+};
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+__exportStar(__nccwpck_require__(3767), exports);
+
+
+/***/ }),
+
+/***/ 3767:
+/***/ ((__unused_webpack_module, exports) => {
+
+"use strict";
+
+Object.defineProperty(exports, "__esModule", ({ value: true }));
+exports.slugify = void 0;
+function slugify(name) {
+    return name.replace(/\s+/g, "_").replace(/\W+/g, "").replace(/_{2,}/g, "_").toLowerCase();
+}
+exports.slugify = slugify;
 
 
 /***/ }),

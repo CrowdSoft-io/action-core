@@ -2,6 +2,7 @@ import { Inject, Injectable } from "@tsed/di";
 import parser from "cron-parser";
 import { Context } from "../../models";
 import { FileSystem } from "../../utils/fs";
+import { slugify } from "../../utils/slugify";
 import { Templating } from "../../utils/templating";
 import { InfrastructureBuildResult } from "../InfrastructureBuildResult";
 import { InfrastructureInterface } from "../InfrastructureInterface";
@@ -54,8 +55,9 @@ export class CronInfrastructure implements InfrastructureInterface {
       parser.parseExpression(item.expression);
 
       const command = this.templating.render(context, item.command);
-      const stdoutLog = `${context.remote.logsDir}/cron.${item.name}.stdout.log`;
-      const stderrLog = `${context.remote.logsDir}/cron.${item.name}.stderr.log`;
+      const slug = slugify(item.name) || Date.now();
+      const stdoutLog = `${context.remote.logsDir}/cron.${slug}.stdout.log`;
+      const stderrLog = `${context.remote.logsDir}/cron.${slug}.stderr.log`;
 
       lines.push(`${item.expression} ${command} 1>> ${stdoutLog} 2>> ${stderrLog}`);
     }

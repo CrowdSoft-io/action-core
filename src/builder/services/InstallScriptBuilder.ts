@@ -1,5 +1,6 @@
 import { Context, ReleaseStage } from "../../models";
 import { FileSystem } from "../../utils/fs";
+import { slugify } from "../../utils/slugify";
 
 export class InstallScriptBuilder {
   private readonly stages: Array<{
@@ -12,7 +13,7 @@ export class InstallScriptBuilder {
 
   addStages(...stages: Array<ReleaseStage>): InstallScriptBuilder {
     stages.forEach(({ name, actions }) => {
-      const slug = name.replace(/\s+/g, "_").replace(/\W+/g, "").replace(/_{2,}/g, "_").toLowerCase() || Date.now();
+      const slug = slugify(name) || Date.now();
       const filename = `${slug}.sh`;
       this.stages.push({ name, filename, actions });
     });

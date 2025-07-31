@@ -1,6 +1,7 @@
 import { Inject, Injectable } from "@tsed/di";
 import { Context, ReleaseStage } from "../../models";
 import { FileSystem } from "../../utils/fs";
+import { slugify } from "../../utils/slugify";
 import { Templating } from "../../utils/templating";
 import { InfrastructureBuildResult } from "../InfrastructureBuildResult";
 import { InfrastructureInterface } from "../InfrastructureInterface";
@@ -32,8 +33,9 @@ export class SupervisorInfrastructure implements InfrastructureInterface {
 
     for (const program of config.programs) {
       const command = this.templating.render(context, program.command);
+      const slug = slugify(program.name) || Date.now();
 
-      lines.push(`[program:${prefix}${context.serviceName}_${program.name}]`);
+      lines.push(`[program:${prefix}${context.serviceName}_${slug}]`);
       lines.push(`command=${command}`);
       lines.push(`directory=${context.remote.projectRoot}`);
       lines.push("autostart=true");
@@ -41,11 +43,11 @@ export class SupervisorInfrastructure implements InfrastructureInterface {
       lines.push("stopsignal=INT");
       lines.push("stopasgroup=true");
       lines.push("killasgroup=true");
-      lines.push(`stdout_logfile=${context.remote.logsDir}/supervisor.${program.name}.stdout.log`);
-      lines.push(`stderr_logfile=${context.remote.logsDir}/supervisor.${program.name}.stderr.log`);
+      lines.push(`stdout_logfile=${context.remote.logsDir}/supervisor.${slug}.stdout.log`);
+      lines.push(`stderr_logfile=${context.remote.logsDir}/supervisor.${slug}.stderr.log`);
       lines.push(`user=${context.remote.user}`);
       lines.push(`group=${context.remote.user}`);
-      lines.push(`process_name=${prefix}${context.serviceName}_${program.name}_%(process_num)s`);
+      lines.push(`process_name=${prefix}${context.serviceName}_${slug}_%(process_num)s`);
       lines.push(`numprocs=${program.replicas || 1}`);
       lines.push("");
     }
