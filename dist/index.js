@@ -2042,18 +2042,18 @@ let LaravelAwinstPlatform = class LaravelAwinstPlatform {
                 },
                 {
                     name: "Laravel - Run migrations",
-                    actions: [`php ${context.remote.releaseDir}/core/artisan migrate --force --no-interaction`]
+                    actions: [`php7.4 ${context.remote.releaseDir}/core/artisan migrate --force --no-interaction`]
                 },
                 {
                     name: "Laravel - Run migration actions",
-                    actions: [`php ${context.remote.releaseDir}/core/artisan migrate:actions --force --no-interaction`]
+                    actions: [`php7.4 ${context.remote.releaseDir}/core/artisan migrate:actions --force --no-interaction`]
                 },
                 {
                     name: "Laravel - Clear cache",
                     actions: [
-                        `php ${context.remote.releaseDir}/core/artisan cache:clear`,
-                        `php ${context.remote.releaseDir}/core/artisan config:clear`,
-                        `php ${context.remote.releaseDir}/core/artisan storage:link`
+                        `php7.4 ${context.remote.releaseDir}/core/artisan cache:clear`,
+                        `php7.4 ${context.remote.releaseDir}/core/artisan config:clear`,
+                        `php7.4 ${context.remote.releaseDir}/core/artisan storage:link`
                     ]
                 }
             ]
