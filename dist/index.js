@@ -1062,7 +1062,7 @@ let NginxConfigRenderer = class NginxConfigRenderer {
         else {
             lines.push("    location ~ .php$ {");
         }
-        lines.push(`        root         ${context.remote.projectRoot}/public;`);
+        lines.push(`        root         ${context.remote.projectRoot}/${service.options?.public_dir ?? "public"};`);
         lines.push("        include      snippets/fastcgi-php.conf;");
         lines.push(`        fastcgi_pass unix:/var/run/php/php${service.options.version}-fpm-${context.remote.user}.sock;`);
         lines.push("    }");
@@ -1073,7 +1073,7 @@ let NginxConfigRenderer = class NginxConfigRenderer {
             case "html":
                 return this.renderHtmlService(context);
             case "php":
-                return this.renderPhpService(context);
+                return this.renderPhpService(context, service);
             case "proxy":
                 return this.renderProxyService(service);
         }
@@ -1086,10 +1086,10 @@ let NginxConfigRenderer = class NginxConfigRenderer {
         lines.push("        try_files $uri $uri/ /index.html;");
         return lines;
     }
-    renderPhpService(context) {
+    renderPhpService(context, service) {
         const lines = [];
         lines.push("        index     index.php;");
-        lines.push(`        root      ${context.remote.projectRoot}/public;`);
+        lines.push(`        root      ${context.remote.projectRoot}/${service.options?.public_dir ?? "public"};`);
         lines.push("        try_files $uri $uri/ /index.php$is_args$args;");
         return lines;
     }
