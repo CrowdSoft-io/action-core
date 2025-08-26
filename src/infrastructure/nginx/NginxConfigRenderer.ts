@@ -48,9 +48,10 @@ export class NginxConfigRenderer {
     lines.push("");
 
     if (external) {
-      lines.push(`    $http_host != ${domain} {`);
+      lines.push(`    if $http_host != ${domain} {`);
       lines.push(`        return 301 https://${domain}$request_uri;`);
       lines.push(`    }`);
+      lines.push("");
     }
 
     for (const location of locations) {
