@@ -187,10 +187,9 @@ export class NginxConfigRenderer {
       lines.push(`        return 301 https://${domain}$request_uri;`);
       lines.push("    }");
       lines.push("");
-      lines.push(`    ssl_certificate     /etc/letsencrypt/live/www.${domain}/fullchain.pem;`);
-      lines.push(`    ssl_certificate_key /etc/letsencrypt/live/www.${domain}/privkey.pem;`);
-      lines.push("    include             /etc/letsencrypt/options-ssl-nginx.conf;");
-      lines.push("    ssl_dhparam         /etc/letsencrypt/ssl-dhparams.pem;");
+      lines.push(`    ssl_certificate         /etc/letsencrypt/live/www.${domain}/fullchain.pem;`);
+      lines.push(`    ssl_certificate_key     /etc/letsencrypt/live/www.${domain}/privkey.pem;`);
+      lines.push(`    ssl_trusted_certificate /etc/letsencrypt/live/www.${domain}/chain.pem;`);
       lines.push("");
       lines.push("    listen 443 ssl;");
       lines.push("    listen [::]:443 ssl;");
