@@ -866,7 +866,7 @@ let NginxConfigRenderer = class NginxConfigRenderer {
         lines.push(`    error_log  /var/log/nginx/${domain}.error.log;`);
         lines.push("");
         if (external) {
-            lines.push(`    if $http_host != ${domain} {`);
+            lines.push(`    if ($http_host != ${domain}) {`);
             lines.push(`        return 301 https://${domain}$request_uri;`);
             lines.push(`    }`);
             lines.push("");
