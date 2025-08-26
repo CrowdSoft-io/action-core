@@ -865,6 +865,11 @@ let NginxConfigRenderer = class NginxConfigRenderer {
         lines.push(`    access_log /var/log/nginx/${domain}.access.log;`);
         lines.push(`    error_log  /var/log/nginx/${domain}.error.log;`);
         lines.push("");
+        if (external) {
+            lines.push(`    $http_host != ${domain} {`);
+            lines.push(`        return 301 https://${domain}$request_uri;`);
+            lines.push(`    }`);
+        }
         for (const location of locations) {
             lines.push(...this.renderLocation(context, location));
             lines.push("");
