@@ -48,7 +48,15 @@ export class TsedPlatform implements PlatformInterface {
     }
 
     return {
-      files
+      files,
+      onInit: [
+        {
+          name: "Tsed - Copy config",
+          actions: [
+            `if [[ -f '${context.remote.configsRoot}/.env.local' ]]; then cat '${context.remote.configsRoot}/.env.local' >> '${context.remote.releaseDir}/.env.local'; fi`
+          ]
+        }
+      ]
     };
   }
 }

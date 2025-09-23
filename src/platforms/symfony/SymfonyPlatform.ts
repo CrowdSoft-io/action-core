@@ -34,6 +34,14 @@ export class SymfonyPlatform implements PlatformInterface {
       postBuild: {
         runComposer: true
       },
+      onInit: [
+        {
+          name: "Symfony - Copy config",
+          actions: [
+            `if [[ -f '${context.remote.configsRoot}/.env' ]]; then cat '${context.remote.configsRoot}/.env' >> '${context.remote.releaseDir}/.env'; fi`
+          ]
+        }
+      ],
       preRelease: [
         {
           name: "Symfony - Clear cache",

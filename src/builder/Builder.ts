@@ -34,6 +34,7 @@ export class Builder {
     await new InstallScriptBuilder(context, this.fileSystem)
       .createDirectories()
       .extractReleaseArchive()
+      .addStages(...(platformResult.onInit ?? []))
       .addStages(...infrastructureResult.preRelease)
       .addStages(...(platformResult.preRelease ?? []))
       .switchReleases()

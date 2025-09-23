@@ -40,13 +40,15 @@ export class LaravelPlatform implements PlatformInterface {
       postBuild: {
         runComposer: true
       },
-      preRelease: [
+      onInit: [
         {
-          name: "Copy config",
+          name: "Laravel - Copy config",
           actions: [
             `if [[ -f '${context.remote.configsRoot}/.env' ]]; then cat '${context.remote.configsRoot}/.env' >> '${context.remote.releaseDir}/.env'; fi`
           ]
-        },
+        }
+      ],
+      preRelease: [
         {
           name: "Laravel - Run migrations",
           actions: [`php ${context.remote.releaseDir}/artisan migrate --force --no-interaction`]

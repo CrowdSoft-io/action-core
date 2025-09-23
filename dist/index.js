@@ -50,6 +50,7 @@ let Builder = class Builder {
         await new services_1.InstallScriptBuilder(context, this.fileSystem)
             .createDirectories()
             .extractReleaseArchive()
+            .addStages(...(platformResult.onInit ?? []))
             .addStages(...infrastructureResult.preRelease)
             .addStages(...(platformResult.preRelease ?? []))
             .switchReleases()
@@ -2152,13 +2153,15 @@ let LaravelPlatform = class LaravelPlatform {
             postBuild: {
                 runComposer: true
             },
-            preRelease: [
+            onInit: [
                 {
-                    name: "Copy config",
+                    name: "Laravel - Copy config",
                     actions: [
                         `if [[ -f '${context.remote.configsRoot}/.env' ]]; then cat '${context.remote.configsRoot}/.env' >> '${context.remote.releaseDir}/.env'; fi`
                     ]
-                },
+                }
+            ],
+            preRelease: [
                 {
                     name: "Laravel - Run migrations",
                     actions: [`php ${context.remote.releaseDir}/artisan migrate --force --no-interaction`]
@@ -2554,6 +2557,14 @@ let SymfonyPlatform = class SymfonyPlatform {
             postBuild: {
                 runComposer: true
             },
+            onInit: [
+                {
+                    name: "Symfony - Copy config",
+                    actions: [
+                        `if [[ -f '${context.remote.configsRoot}/.env' ]]; then cat '${context.remote.configsRoot}/.env' >> '${context.remote.releaseDir}/.env'; fi`
+                    ]
+                }
+            ],
             preRelease: [
                 {
                     name: "Symfony - Clear cache",
@@ -2663,7 +2674,15 @@ let TsedPlatform = class TsedPlatform {
             files.push("views");
         }
         return {
-            files
+            files,
+            onInit: [
+                {
+                    name: "Tsed - Copy config",
+                    actions: [
+                        `if [[ -f '${context.remote.configsRoot}/.env.local' ]]; then cat '${context.remote.configsRoot}/.env.local' >> '${context.remote.releaseDir}/.env.local'; fi`
+                    ]
+                }
+            ]
         };
     }
 };

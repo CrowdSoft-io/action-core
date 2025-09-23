@@ -7,6 +7,7 @@ export interface PlatformBuildResult {
     readonly phpBuild?: string;
     readonly runComposer?: boolean;
   };
+  readonly onInit?: Array<ReleaseStage>;
   readonly preRelease?: Array<ReleaseStage>;
   readonly postRelease?: Array<ReleaseStage>;
 }
