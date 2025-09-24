@@ -23,7 +23,7 @@ export class GolangPlatform implements PlatformInterface {
 
     const commands: Array<string> = [];
 
-    if (!this.fileSystem.exists("app/main.go")) {
+    if (this.fileSystem.exists("app/main.go")) {
       commands.push(`go build -o bin/main app/main.go`);
     }
 
@@ -46,7 +46,7 @@ export class GolangPlatform implements PlatformInterface {
         commands.push(`cd ${submodule}`);
         commands.push("go get ./...");
 
-        if (!this.fileSystem.exists("app/main.go")) {
+        if (this.fileSystem.exists("app/main.go")) {
           commands.push(`go build -o ../bin/main app/main.go`);
         }
 
