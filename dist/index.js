@@ -1925,7 +1925,15 @@ let GolangPlatform = class GolangPlatform {
             files: ["bin", ".env"],
             postBuild: {
                 golangBuild: commands.join(" && \\\n")
-            }
+            },
+            onInit: [
+                {
+                    name: "Golang - Copy config",
+                    actions: [
+                        `if [[ -f '${context.remote.configsRoot}/.env' ]]; then cat '${context.remote.configsRoot}/.env' >> '${context.remote.releaseDir}/.env'; fi`
+                    ]
+                }
+            ]
         };
     }
 };
