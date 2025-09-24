@@ -840,7 +840,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.NginxConfigRenderer = void 0;
 const di_1 = __nccwpck_require__(9270);
 let NginxConfigRenderer = class NginxConfigRenderer {
-    renderServer(context, server, domain, external = false, withWww = false) {
+    renderServer(context, server, domain, external = false, withWww = false, withSsl = false) {
         const locations = server.locations ?? [];
         const upstreams = server.upstreams ?? [];
         const internal = [];
@@ -866,7 +866,7 @@ let NginxConfigRenderer = class NginxConfigRenderer {
         lines.push(`    access_log /var/log/nginx/${domain}.access.log;`);
         lines.push(`    error_log  /var/log/nginx/${domain}.error.log;`);
         lines.push("");
-        if (external) {
+        if (withSsl) {
             lines.push(`    if ($http_host != ${domain}) {`);
             lines.push(`        return 301 https://${domain}$request_uri;`);
             lines.push(`    }`);
@@ -882,13 +882,13 @@ let NginxConfigRenderer = class NginxConfigRenderer {
             lines.push("");
         }
         lines.push(...internal);
-        if (external) {
+        if (withSsl) {
             lines.push(`    ssl_certificate         /etc/letsencrypt/live/${domain}/fullchain.pem;`);
             lines.push(`    ssl_certificate_key     /etc/letsencrypt/live/${domain}/privkey.pem;`);
             lines.push(`    ssl_trusted_certificate /etc/letsencrypt/live/${domain}/chain.pem;`);
             lines.push("");
         }
-        if (external) {
+        if (withSsl) {
             lines.push("    listen 443 ssl;");
             lines.push("    listen [::]:443 ssl;");
         }
@@ -903,7 +903,7 @@ let NginxConfigRenderer = class NginxConfigRenderer {
         lines.push("}");
         lines.push("");
         if (external) {
-            lines.push(...this.renderExternalRedirects(domain, withWww));
+            lines.push(...this.renderExternalRedirects(domain, withWww, withSsl));
         }
         return lines.join("\n");
     }
@@ -974,9 +974,9 @@ let NginxConfigRenderer = class NginxConfigRenderer {
         }
         return { locations, internal };
     }
-    renderExternalRedirects(domain, withWww) {
+    renderExternalRedirects(domain, withWww, withSsl) {
         const lines = [];
-        if (withWww) {
+        if (withSsl && withWww) {
             lines.push("server {");
             lines.push(`    server_name www.${domain};`);
             lines.push(`    access_log /var/log/nginx/www.${domain}.access.log;`);
@@ -997,21 +997,23 @@ let NginxConfigRenderer = class NginxConfigRenderer {
             lines.push("}");
             lines.push("");
         }
-        lines.push("server {");
-        lines.push(`    server_name ${domain};`);
-        lines.push(`    access_log /var/log/nginx/${domain}-80.access.log;`);
-        lines.push(`    error_log  /var/log/nginx/${domain}-80.error.log;`);
-        lines.push("");
-        lines.push(`    if ($host = ${domain}) {`);
-        lines.push(`        return 301 https://${domain}$request_uri;`);
-        lines.push("    }");
-        lines.push("");
-        lines.push("    listen 80;");
-        lines.push("    listen [::]:80;");
-        lines.push("");
-        lines.push("    return 404;");
-        lines.push("}");
-        lines.push("");
+        if (withSsl) {
+            lines.push("server {");
+            lines.push(`    server_name ${domain};`);
+            lines.push(`    access_log /var/log/nginx/${domain}-80.access.log;`);
+            lines.push(`    error_log  /var/log/nginx/${domain}-80.error.log;`);
+            lines.push("");
+            lines.push(`    if ($host = ${domain}) {`);
+            lines.push(`        return 301 https://${domain}$request_uri;`);
+            lines.push("    }");
+            lines.push("");
+            lines.push("    listen 80;");
+            lines.push("    listen [::]:80;");
+            lines.push("");
+            lines.push("    return 404;");
+            lines.push("}");
+            lines.push("");
+        }
         if (withWww) {
             lines.push("server {");
             lines.push(`    server_name www.${domain};`);
@@ -1019,7 +1021,12 @@ let NginxConfigRenderer = class NginxConfigRenderer {
             lines.push(`    error_log  /var/log/nginx/www.${domain}-80.error.log;`);
             lines.push("");
             lines.push(`    if ($host = www.${domain}) {`);
-            lines.push(`        return 301 https://${domain}$request_uri;`);
+            if (withSsl) {
+                lines.push(`        return 301 https://${domain}$request_uri;`);
+            }
+            else {
+                lines.push(`        return 301 http://${domain}$request_uri;`);
+            }
             lines.push("    }");
             lines.push("");
             lines.push("    listen 80;");
@@ -1162,7 +1169,7 @@ let NginxInfrastructure = class NginxInfrastructure {
         const prefix = parameters.prefix ? `${parameters.prefix}-` : "";
         this.fileSystem.mkdir(localDir);
         if (config.external) {
-            this.fileSystem.writeFile(`${localDir}/${context.repositoryName}.external`, this.renderer.renderServer(context, config.external, parameters.domain, true, !!config.external.with_www));
+            this.fileSystem.writeFile(`${localDir}/${context.repositoryName}.external`, this.renderer.renderServer(context, config.external, parameters.domain, true, !!config.external.with_www, config.external.with_ssl !== false));
         }
         if (config.internal) {
             this.fileSystem.writeFile(`${localDir}/${context.repositoryName}.internal`, this.renderer.renderServer(context, config.internal, `${prefix}${context.repositoryName}.internal`));

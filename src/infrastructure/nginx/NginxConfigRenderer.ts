@@ -13,7 +13,7 @@ import {
 
 @Injectable()
 export class NginxConfigRenderer {
-  renderServer(context: Context, server: NginxServer, domain: string, external = false, withWww = false): string {
+  renderServer(context: Context, server: NginxServer, domain: string, external = false, withWww = false, withSsl = false): string {
     const locations: Array<NginxLocation> = server.locations ?? [];
     const upstreams: Array<NginxUpstream> = server.upstreams ?? [];
     const internal: Array<string> = [];
@@ -47,7 +47,7 @@ export class NginxConfigRenderer {
     lines.push(`    error_log  /var/log/nginx/${domain}.error.log;`);
     lines.push("");
 
-    if (external) {
+    if (withSsl) {
       lines.push(`    if ($http_host != ${domain}) {`);
       lines.push(`        return 301 https://${domain}$request_uri;`);
       lines.push(`    }`);
@@ -67,14 +67,14 @@ export class NginxConfigRenderer {
 
     lines.push(...internal);
 
-    if (external) {
+    if (withSsl) {
       lines.push(`    ssl_certificate         /etc/letsencrypt/live/${domain}/fullchain.pem;`);
       lines.push(`    ssl_certificate_key     /etc/letsencrypt/live/${domain}/privkey.pem;`);
       lines.push(`    ssl_trusted_certificate /etc/letsencrypt/live/${domain}/chain.pem;`);
       lines.push("");
     }
 
-    if (external) {
+    if (withSsl) {
       lines.push("    listen 443 ssl;");
       lines.push("    listen [::]:443 ssl;");
     } else if (context.branch === "main" && server.strict !== false) {
@@ -89,7 +89,7 @@ export class NginxConfigRenderer {
     lines.push("");
 
     if (external) {
-      lines.push(...this.renderExternalRedirects(domain, withWww));
+      lines.push(...this.renderExternalRedirects(domain, withWww, withSsl));
     }
 
     return lines.join("\n");
@@ -174,10 +174,10 @@ export class NginxConfigRenderer {
     return { locations, internal };
   }
 
-  private renderExternalRedirects(domain: string, withWww: boolean): Array<string> {
+  private renderExternalRedirects(domain: string, withWww: boolean, withSsl: boolean): Array<string> {
     const lines: Array<string> = [];
 
-    if (withWww) {
+    if (withSsl && withWww) {
       lines.push("server {");
       lines.push(`    server_name www.${domain};`);
       lines.push(`    access_log /var/log/nginx/www.${domain}.access.log;`);
@@ -199,21 +199,23 @@ export class NginxConfigRenderer {
       lines.push("");
     }
 
-    lines.push("server {");
-    lines.push(`    server_name ${domain};`);
-    lines.push(`    access_log /var/log/nginx/${domain}-80.access.log;`);
-    lines.push(`    error_log  /var/log/nginx/${domain}-80.error.log;`);
-    lines.push("");
-    lines.push(`    if ($host = ${domain}) {`);
-    lines.push(`        return 301 https://${domain}$request_uri;`);
-    lines.push("    }");
-    lines.push("");
-    lines.push("    listen 80;");
-    lines.push("    listen [::]:80;");
-    lines.push("");
-    lines.push("    return 404;");
-    lines.push("}");
-    lines.push("");
+    if (withSsl) {
+      lines.push("server {");
+      lines.push(`    server_name ${domain};`);
+      lines.push(`    access_log /var/log/nginx/${domain}-80.access.log;`);
+      lines.push(`    error_log  /var/log/nginx/${domain}-80.error.log;`);
+      lines.push("");
+      lines.push(`    if ($host = ${domain}) {`);
+      lines.push(`        return 301 https://${domain}$request_uri;`);
+      lines.push("    }");
+      lines.push("");
+      lines.push("    listen 80;");
+      lines.push("    listen [::]:80;");
+      lines.push("");
+      lines.push("    return 404;");
+      lines.push("}");
+      lines.push("");
+    }
 
     if (withWww) {
       lines.push("server {");
@@ -222,7 +224,11 @@ export class NginxConfigRenderer {
       lines.push(`    error_log  /var/log/nginx/www.${domain}-80.error.log;`);
       lines.push("");
       lines.push(`    if ($host = www.${domain}) {`);
-      lines.push(`        return 301 https://${domain}$request_uri;`);
+      if (withSsl) {
+        lines.push(`        return 301 https://${domain}$request_uri;`);
+      } else {
+        lines.push(`        return 301 http://${domain}$request_uri;`);
+      }
       lines.push("    }");
       lines.push("");
       lines.push("    listen 80;");

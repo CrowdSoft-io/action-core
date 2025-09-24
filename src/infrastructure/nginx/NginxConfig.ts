@@ -53,8 +53,9 @@ export type NginxUpstream = {
 
 export type NginxServer = {
   readonly strict?: boolean;
-  readonly locations?: Array<NginxLocation>;
   readonly with_www?: boolean;
+  readonly with_ssl?: boolean;
+  readonly locations?: Array<NginxLocation>;
   readonly gateway?: NginxGateway;
   readonly upstreams?: Array<NginxUpstream>;
 };

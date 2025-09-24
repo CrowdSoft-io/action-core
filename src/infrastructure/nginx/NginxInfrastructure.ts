@@ -19,7 +19,14 @@ export class NginxInfrastructure implements InfrastructureInterface {
     if (config.external) {
       this.fileSystem.writeFile(
         `${localDir}/${context.repositoryName}.external`,
-        this.renderer.renderServer(context, config.external, parameters.domain, true, !!config.external.with_www)
+        this.renderer.renderServer(
+          context,
+          config.external,
+          parameters.domain,
+          true,
+          !!config.external.with_www,
+          config.external.with_ssl !== false
+        )
       );
     }
 
