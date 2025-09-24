@@ -21,7 +21,13 @@ export class TsedPlatform implements PlatformInterface {
 
     const lines: Array<string> = [];
     for (const name in environment) {
-      lines.push(`${name}='${environment[name]}'`);
+      if (environment[name] === null || environment[name] === "null") {
+        lines.push(`${name}=`);
+      } else if (typeof environment[name] === "string" && environment[name].includes("\n")) {
+        lines.push(`${name}='${environment[name]}'`);
+      } else {
+        lines.push(`${name}=${environment[name]}`);
+      }
     }
     this.fileSystem.writeFile(".env.local", lines.join("\n") + "\n");
 
