@@ -21,8 +21,13 @@ export class NextPlatform implements PlatformInterface {
 
     const lines: Array<string> = [];
     for (const name in environment) {
-      process.env[name] = environment[name];
-      lines.push(`${name}='${environment[name]}'`);
+      if (environment[name] === null || environment[name] === "null") {
+        lines.push(`${name}=`);
+      } else if (typeof environment[name] === "string" && environment[name].includes("\n")) {
+        lines.push(`${name}='${environment[name]}'`);
+      } else {
+        lines.push(`${name}=${environment[name]}`);
+      }
     }
     this.fileSystem.writeFile(".env", lines.join("\n") + "\n", true);
 
