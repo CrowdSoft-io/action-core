@@ -1885,6 +1885,9 @@ let GolangPlatform = class GolangPlatform {
         }
         this.dotEnv.write(environment);
         const commands = [];
+        if (!this.fileSystem.exists("app/main.go")) {
+            commands.push(`go build -o bin/main app/main.go`);
+        }
         const files = this.fileSystem.glob("app/cmd/*/main.go");
         if (files.length > 0) {
             commands.push("go get ./...");
@@ -1902,6 +1905,9 @@ let GolangPlatform = class GolangPlatform {
             if (files.length > 0) {
                 commands.push(`cd ${submodule}`);
                 commands.push("go get ./...");
+                if (!this.fileSystem.exists("app/main.go")) {
+                    commands.push(`go build -o ../bin/main app/main.go`);
+                }
                 for (const file of files) {
                     const matches = file.match(/\/(\w+)\/main\.go$/);
                     if (!matches) {
