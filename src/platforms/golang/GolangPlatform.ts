@@ -41,15 +41,17 @@ export class GolangPlatform implements PlatformInterface {
 
     const submodules = await this.subModule.read();
     for (const submodule of submodules) {
+      if (this.fileSystem.exists(`${submodule}/app/main.go`)) {
+        commands.push(`cd ${submodule}`);
+        commands.push("go get ./...");
+        commands.push(`go build -o ../bin/main app/main.go`);
+        commands.push("cd ..");
+      }
+
       const files = this.fileSystem.glob(`${submodule}/app/cmd/*/main.go`);
       if (files.length > 0) {
         commands.push(`cd ${submodule}`);
         commands.push("go get ./...");
-
-        if (this.fileSystem.exists("app/main.go")) {
-          commands.push(`go build -o ../bin/main app/main.go`);
-        }
-
         for (const file of files) {
           const matches = file.match(/\/(\w+)\/main\.go$/);
           if (!matches) {
