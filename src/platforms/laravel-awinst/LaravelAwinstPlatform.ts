@@ -17,7 +17,14 @@ export class LaravelAwinstPlatform implements PlatformInterface {
     lines.sort();
     this.fileSystem.writeFile("core/.env", lines.join("\n") + "\n");
 
-    await this.runner.run("rm", "-rf", "assets/images/frontend", "assets/images/seo", "assets/images/user/profile");
+    await this.runner.run(
+      "rm",
+      "-rf",
+      "assets/images/frontend",
+      "assets/images/landings",
+      "assets/images/seo",
+      "assets/images/user/profile"
+    );
 
     await this.runner.run("rm", "robots.txt");
     await this.runner.run("cp", ".ci-cd/robots/robots.prod.txt", "robots.txt");
