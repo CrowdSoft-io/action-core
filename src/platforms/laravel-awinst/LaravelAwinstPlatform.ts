@@ -23,7 +23,8 @@ export class LaravelAwinstPlatform implements PlatformInterface {
       "assets/images/frontend",
       "assets/images/landings",
       "assets/images/seo",
-      "assets/images/user/profile"
+      "assets/images/user/profile",
+      "core/storage/api-docs"
     );
 
     await this.runner.run("rm", "robots.txt");

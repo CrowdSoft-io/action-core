@@ -2049,7 +2049,7 @@ let LaravelAwinstPlatform = class LaravelAwinstPlatform {
         }
         lines.sort();
         this.fileSystem.writeFile("core/.env", lines.join("\n") + "\n");
-        await this.runner.run("rm", "-rf", "assets/images/frontend", "assets/images/landings", "assets/images/seo", "assets/images/user/profile");
+        await this.runner.run("rm", "-rf", "assets/images/frontend", "assets/images/landings", "assets/images/seo", "assets/images/user/profile", "core/storage/api-docs");
         await this.runner.run("rm", "robots.txt");
         await this.runner.run("cp", ".ci-cd/robots/robots.prod.txt", "robots.txt");
         const files = ["assets", "core", "richtexteditor", "index.php", "robots.txt"];
