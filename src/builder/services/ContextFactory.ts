@@ -25,7 +25,7 @@ export class ContextFactory {
       projectName: repository.replace(/^(\w+)-.*$/g, "$1"),
       serviceName: repository.replace(/-/g, "_"),
       version,
-      branch: githubContext.payload.pull_request?.base.ref ?? "main",
+      branch: githubContext.payload.pull_request?.base?.ref ?? githubContext.ref.split("/").reverse()[0],
       infrastructureDir: options.infrastructureDir,
       local: {
         buildDir: localBuildDir,
