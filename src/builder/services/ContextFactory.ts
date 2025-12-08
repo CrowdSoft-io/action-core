@@ -19,13 +19,13 @@ export class ContextFactory {
     const remoteWwwRoot = `${remoteHomeDir}/www`;
     const remoteReleasesRoot = `${remoteHomeDir}/releases/${repository}`;
     const remoteBuildDir = `${remoteReleasesRoot}/build-${version}`;
-    console.log(JSON.stringify(githubContext, null, 2));
+
     return {
       repositoryName: repository,
       projectName: repository.replace(/^(\w+)-.*$/g, "$1"),
       serviceName: repository.replace(/-/g, "_"),
       version,
-      branch: githubContext.ref.split("/").reverse()[0],
+      branch: githubContext.payload.pull_request?.base.ref ?? "main",
       infrastructureDir: options.infrastructureDir,
       local: {
         buildDir: localBuildDir,
