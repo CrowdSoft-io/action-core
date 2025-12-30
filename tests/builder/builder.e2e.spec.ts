@@ -25,6 +25,7 @@ describe("Build e2e", () => {
     },
     ref: "test",
     runId: 123,
+    runAttempt: 1,
     runNumber: 10,
     serverUrl: "",
     sha: "",
