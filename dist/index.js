@@ -151,7 +151,7 @@ let ContextFactory = class ContextFactory {
         const remoteWwwRoot = `${remoteHomeDir}/www`;
         const remoteReleasesRoot = `${remoteHomeDir}/releases/${repository}`;
         const remoteBuildDir = `${remoteReleasesRoot}/build-${version}`;
-        console.log(githubContext);
+        console.log(JSON.stringify(githubContext, null, 2));
         return {
             repositoryName: repository,
             projectName: repository.replace(/^(\w+)-.*$/g, "$1"),
