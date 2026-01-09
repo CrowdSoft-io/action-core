@@ -30,7 +30,7 @@ export class LaravelAwinstPlatform implements PlatformInterface {
     await this.runner.run("rm", "robots.txt");
     await this.runner.run("cp", ".ci-cd/robots/robots.prod.txt", "robots.txt");
 
-    const files: Array<string> = ["assets", "core", "richtexteditor", "index.php", "robots.txt"];
+    const files: Array<string> = ["assets", "core", "richtexteditor", "ai.txt", "index.php", "robots.txt"];
 
     return {
       files,
