@@ -22,10 +22,11 @@ export type NginxService = NginxHtmlService | NginxPhpService | NginxProxyServic
 
 export type NginxLocation = {
   readonly path: string;
+  readonly deny?: boolean;
   readonly basic_auth?: boolean;
   readonly get_only?: boolean;
   readonly cors_headers?: boolean;
-  readonly service: NginxService;
+  readonly service?: NginxService;
 };
 
 export type NginxGatewayServiceName = string;

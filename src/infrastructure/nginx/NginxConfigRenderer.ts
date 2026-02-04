@@ -59,7 +59,7 @@ export class NginxConfigRenderer {
       lines.push("");
     }
 
-    const location = locations.find((location) => location.service.type === "php");
+    const location = locations.find((location) => location.service?.type === "php");
     if (location) {
       lines.push(...this.renderFastCgiPhpLocation(context, location.service as NginxPhpService));
       lines.push("");
@@ -246,35 +246,41 @@ export class NginxConfigRenderer {
     const lines: Array<string> = [];
 
     lines.push(`    location ${location.path} {`);
-    if (location.basic_auth) {
-      lines.push('        auth_basic           "Restricted Content";');
-      lines.push("        auth_basic_user_file /etc/nginx/.htpasswd;");
-      lines.push("");
+    if (location.deny) {
+      lines.push("        return 404;");
+    } else {
+      if (location.basic_auth) {
+        lines.push('        auth_basic           "Restricted Content";');
+        lines.push("        auth_basic_user_file /etc/nginx/.htpasswd;");
+        lines.push("");
+      }
+      if (location.get_only) {
+        lines.push("        if ($request_method !~ ^(GET|HEAD)$) {");
+        lines.push("            return 405;");
+        lines.push("        }");
+        lines.push("");
+      }
+      if (location.cors_headers) {
+        lines.push("        if ($request_method = 'OPTIONS') {");
+        lines.push("            add_header 'Access-Control-Allow-Origin' '*';");
+        lines.push("            add_header 'Access-Control-Allow-Credentials' 'true';");
+        lines.push("            add_header 'Access-Control-Allow-Methods' 'GET,HEAD,PUT,PATCH,POST,DELETE';");
+        lines.push("            add_header 'Access-Control-Allow-Headers' 'accept,authorization,content-type,origin';");
+        lines.push("            add_header 'Access-Control-Max-Age' 1728000;");
+        lines.push("            add_header 'Content-Type' 'text/plain charset=UTF-8';");
+        lines.push("            add_header 'Content-Length' 0;");
+        lines.push("            return 204;");
+        lines.push("        }");
+        lines.push("");
+        lines.push("        proxy_hide_header 'Access-Control-Allow-Origin';");
+        lines.push("        add_header        'Access-Control-Allow-Origin' '*';");
+        lines.push("        add_header        'Access-Control-Expose-Headers' 'x-total-count';");
+        lines.push("");
+      }
+      if (location.service) {
+        lines.push(...this.renderService(context, location.service));
+      }
     }
-    if (location.get_only) {
-      lines.push("        if ($request_method !~ ^(GET|HEAD)$) {");
-      lines.push("            return 405;");
-      lines.push("        }");
-      lines.push("");
-    }
-    if (location.cors_headers) {
-      lines.push("        if ($request_method = 'OPTIONS') {");
-      lines.push("            add_header 'Access-Control-Allow-Origin' '*';");
-      lines.push("            add_header 'Access-Control-Allow-Credentials' 'true';");
-      lines.push("            add_header 'Access-Control-Allow-Methods' 'GET,HEAD,PUT,PATCH,POST,DELETE';");
-      lines.push("            add_header 'Access-Control-Allow-Headers' 'accept,authorization,content-type,origin';");
-      lines.push("            add_header 'Access-Control-Max-Age' 1728000;");
-      lines.push("            add_header 'Content-Type' 'text/plain charset=UTF-8';");
-      lines.push("            add_header 'Content-Length' 0;");
-      lines.push("            return 204;");
-      lines.push("        }");
-      lines.push("");
-      lines.push("        proxy_hide_header 'Access-Control-Allow-Origin';");
-      lines.push("        add_header        'Access-Control-Allow-Origin' '*';");
-      lines.push("        add_header        'Access-Control-Expose-Headers' 'x-total-count';");
-      lines.push("");
-    }
-    lines.push(...this.renderService(context, location.service));
     lines.push("    }");
 
     return lines;
