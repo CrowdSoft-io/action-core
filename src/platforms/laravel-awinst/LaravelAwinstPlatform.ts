@@ -24,7 +24,9 @@ export class LaravelAwinstPlatform implements PlatformInterface {
       "assets/images/landings",
       "assets/images/news",
       "assets/images/packages",
+      "assets/images/pages",
       "assets/images/seo",
+      "assets/images/site",
       "assets/images/user/profile",
       "core/storage/api-docs"
     );
