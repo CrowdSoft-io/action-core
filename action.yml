@@ -16,6 +16,10 @@ inputs:
     description: Infrastructure directory
     required: false
     default: infrastructure
+  node_version:
+    description: Node version
+    required: false
+    default: '24'
 
 outputs:
   version:
@@ -34,5 +38,5 @@ outputs:
     description: Need run composer
 
 runs:
-  using: node24
+  using: ${{ inputs.node_version }}
   main: dist/index.js
