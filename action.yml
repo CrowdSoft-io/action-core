@@ -38,5 +38,5 @@ outputs:
     description: Need run composer
 
 runs:
-  using: 'node${{ inputs.node_version }}'
+  using: node${{ inputs.node_version }}
   main: dist/index.js
